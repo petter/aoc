@@ -3,7 +3,6 @@ package day2
 import java.io.File
 
 fun main() {
-
     val opcodes = File("in/day2.txt").readText().trim().split(",").map { it.toInt() }
     for (noun in 0..99) {
         for (verb in 0..99) {
@@ -20,7 +19,6 @@ fun main() {
 
 
 fun run(input: List<Int>, noun : Int, verb : Int) : Int {
-
     val opcodes = input.toMutableList()
     opcodes[1] = noun
     opcodes[2] = verb
