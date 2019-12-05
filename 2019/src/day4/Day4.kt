@@ -4,15 +4,17 @@ fun main() {
     val from = 245182
     val to = 790572
 
-    val passwords = validPasswords(from, to)
-    println("Amount of valid passwords: ${passwords.size}")
+    val passwords1 = validPasswords(from, to, listOf(::nonDecreasingConstraint, ::sameAdjacentSiblingConstraint))
+    val passwords2 = validPasswords(from, to, listOf(::nonDecreasingConstraint, ::sameAdjacentSiblingConstraint2))
+    println("Amount of valid passwords: ${passwords1.size}")
+    println("Amount of valid passwords 2: ${passwords2.size}")
 }
 
-fun validPasswords(from: Int, to: Int) : List<Int> {
+fun validPasswords(from: Int, to: Int, constraints: List<(String) -> Boolean>) : List<Int> {
     val res = mutableListOf<Int>()
      for (i in from..to) {
         val password = i.toString()
-        if (nonDecreasingConstraint(password) && sameAdjacentSiblingConstraint(password))
+         if(constraints.all { it(password) })
             res.add(i)
      }
     return res
@@ -27,4 +29,8 @@ fun nonDecreasingConstraint(password: String) : Boolean {
 
 fun sameAdjacentSiblingConstraint(password: String) : Boolean {
     return Regex("(.)\\1").containsMatchIn(password)
+}
+
+fun sameAdjacentSiblingConstraint2(password: String) : Boolean {
+    return sameAdjacentSiblingConstraint(Regex("((.)\\2{2,})").replace(password, ""))
 }
