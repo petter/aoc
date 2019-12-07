@@ -1,17 +1,20 @@
 package day9
 
-const val numPlayers = 10
+import java.math.BigInteger
+
+const val numPlayers = 400
 var curMarble = Marble()
-val players = MutableList(numPlayers) { 0 }
-const val highestMarblePoint = 1618
-val keptMarbles = MutableList<Marble?>(numPlayers) { null }
+val players = MutableList<Long>(numPlayers) { 0 }
+val startNode = curMarble
 
 fun main() {
     var curPlayer = 0
     var lastMarbleWorth = 0
-    while (lastMarbleWorth < highestMarblePoint) {
-        lastMarbleWorth = insertMarble(curPlayer)
+    var round = 1
+    while (round < 71864 * 100 + 1) {
+        insertMarble(curPlayer)
         curPlayer = (curPlayer + 1) % players.size
+        round++
     }
 
     println(lastMarbleWorth)
@@ -20,8 +23,17 @@ fun main() {
     println(curMarble)
 }
 
+fun printSequence() {
+    print("${startNode.num} ")
+    var cur = curMarble.right
+    while(cur != startNode) {
+        print("${cur.num} ")
+    }
+        println()
+}
+
 fun insertMarble(curPlayer : Int) : Int {
-    var marble = keptMarbles.set(curPlayer, null) ?: Marble()
+    var marble = Marble()
 
     if(marble.num % 23 == 0) {
         var score = marble.num
@@ -30,11 +42,10 @@ fun insertMarble(curPlayer : Int) : Int {
             marble = marble.left
         }
 
-        keptMarbles[curPlayer] = marble.removeMarble()
-        score += marble.num
+        score += marble.removeMarble().num
         curMarble = marble.right
 
-        players[curPlayer] += score
+        players[curPlayer] = players[curPlayer].plus(score)
         return score
     }
 

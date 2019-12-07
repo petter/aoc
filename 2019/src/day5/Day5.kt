@@ -15,16 +15,16 @@ fun run(input: List<Int>) : Int {
         val parameterModes = opcodeString.substring(0, 3).map { ParameterMode.values()[it.toInt() - 48] }.reversed()
         val opcode = opcodeString.substring(3).toInt()
 
-        var func = ::opcode0
-        when (opcode) {
-            1 -> func = ::opcode1
-            2 -> func = ::opcode2
-            3 -> func = ::opcode3
-            4 -> func = ::opcode4
-            5 -> func = ::opcode5
-            6 -> func = ::opcode6
-            7 -> func = ::opcode7
-            8 -> func = ::opcode8
+        val func = when (opcode) {
+            1 -> ::opcode1
+            2 -> ::opcode2
+            3 -> ::opcode3
+            4 -> ::opcode4
+            5 -> ::opcode5
+            6 -> ::opcode6
+            7 -> ::opcode7
+            8 -> ::opcode8
+            else -> ::opcode0
         }
 
         ip = func(opcodes, ip, parameterModes)
@@ -90,12 +90,11 @@ fun opcode8(opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMo
     return ip + 4
 }
 
-fun getParameterValue(opcodes: MutableList<Int>, ip: Int, parameterMode: ParameterMode) : Int {
-    return if (parameterMode == ParameterMode.POSITION_MODE)
+fun getParameterValue(opcodes: MutableList<Int>, ip: Int, parameterMode: ParameterMode) =
+    if (parameterMode == ParameterMode.POSITION_MODE)
         opcodes[opcodes[ip]]
     else
         opcodes[ip]
-}
 
 fun getParameterValues(opcodes: MutableList<Int>, ipRange: IntRange, parameterModes: List<ParameterMode>) : List<Int> {
     return ipRange.zip(parameterModes).map { (ip, parameterMode) -> getParameterValue(opcodes, ip, parameterMode) }
