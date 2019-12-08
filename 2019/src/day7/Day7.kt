@@ -2,22 +2,109 @@ package day7
 
 import java.io.File
 
-var inputSignal = 0
-var i = 0
-
 fun main() {
     val opcodes = File("in/day7.txt").readText().trim().split(",").map { it.toInt() }
-    val permutations = permute(listOf(0,1,2,3,4))
+    val permutations = permute(listOf(5,6,7,8,9))
     var highestThrusterSignal = 0
     for (permutation in permutations) {
-        inputSignal = 0
-        for (phaseSetting in permutation) {
-            run(opcodes, phaseSetting, inputSignal)
+        val communicationChannels = permutation.map { mutableListOf(it) }
+        communicationChannels[0].add(0)
+
+        val amplifiers = permutation.mapIndexed { i, _ ->
+            Amplifier(
+                opcodes = opcodes.toMutableList(),
+                input = communicationChannels[i],
+                output = communicationChannels[(i + 1) % communicationChannels.size],
+                id = i
+            ) }
+
+        var i = 0
+        var lastAmplifierState = Amplifier.RunningState.YIELDED
+        while (lastAmplifierState != Amplifier.RunningState.DONE) {
+            val curAmplifier = amplifiers[i % amplifiers.size]
+            val state = curAmplifier.run()
+            if(curAmplifier == amplifiers.last()) lastAmplifierState = state
+            i++
         }
-        println("$permutation: $inputSignal")
-        if (inputSignal > highestThrusterSignal) highestThrusterSignal = inputSignal
+
+        val thrusterSignal = communicationChannels[0][0]
+        if (thrusterSignal > highestThrusterSignal) highestThrusterSignal = thrusterSignal
     }
     println("Highest thruster signal: $highestThrusterSignal")
+}
+
+class Amplifier(private val opcodes: MutableList<Int>, private val input: MutableList<Int>, private val output: MutableList<Int>, private val id: Int) {
+    var ip = 0
+    fun run() : RunningState {
+        while (opcodes[this.ip] != 99) {
+            val opcodeString = opcodes[this.ip].toString().padStart(5, '0')
+            val parameterModes = opcodeString.substring(0, 3).map { ParameterMode.values()[it.toInt() - 48] }.reversed()
+            when (opcodeString.substring(3).toInt()) {
+                1 -> doOp(Integer::sum, parameterModes)
+                2 -> doOp(Math::multiplyExact, parameterModes)
+                3 -> opcode3()
+                4 -> { opcode4(parameterModes); return RunningState.YIELDED }
+                5 -> jumpIf({ it != 0 }, parameterModes)
+                6 -> jumpIf({ it == 0 }, parameterModes)
+                7 -> comparison({a, b -> a < b}, parameterModes)
+                8 -> comparison({a, b -> a == b}, parameterModes)
+                else -> { ip += 1 }
+            }
+        }
+
+        return RunningState.DONE
+    }
+
+
+    private fun doOp(op: (Int, Int) -> Int, parameterModes: List<ParameterMode>) {
+        val res = getParameterValues(opcodes, ip+1..ip+3, parameterModes.subList(0, 2)).reduce(op)
+        val saveIndex = opcodes[ip + 3]
+        opcodes[saveIndex] = res
+        ip += 4
+    }
+
+    private fun opcode3() {
+        val inputVal = input.removeAt(0)
+        opcodes[opcodes[ip+1]] = inputVal
+        ip += 2
+    }
+
+    private fun opcode4(parameterModes: List<ParameterMode>) {
+        val outputVal = getParameterValue(opcodes, ip + 1, parameterModes[0])
+        output.add(outputVal)
+        ip += 2
+    }
+
+    private fun jumpIf(test: (Int) -> Boolean, parameterModes: List<ParameterMode>) {
+        val (num, jumpPos) = getParameterValues(opcodes, ip+1..ip+2, parameterModes.subList(0, 2))
+        if(test(num)) ip = jumpPos
+        else ip += 3
+    }
+
+    private fun comparison(comp: (Int, Int) -> Boolean, parameterModes: List<ParameterMode>) {
+        val (a, b) = getParameterValues(opcodes, ip+1..ip+2, parameterModes.subList(0, 2))
+        opcodes[opcodes[ip + 3]] = if(comp(a, b)) 1 else 0
+        ip += 4
+    }
+
+    private fun getParameterValue(opcodes: MutableList<Int>, ip: Int, parameterMode: ParameterMode) =
+        if (parameterMode == ParameterMode.POSITION_MODE)
+            opcodes[opcodes[ip]]
+        else
+            opcodes[ip]
+
+    private fun getParameterValues(opcodes: MutableList<Int>, ipRange: IntRange, parameterModes: List<ParameterMode>) =
+        ipRange.zip(parameterModes).map { (ip, parameterMode) -> getParameterValue(opcodes, ip, parameterMode) }
+
+    private enum class ParameterMode {
+        POSITION_MODE,
+        IMMEDIATE_MODE
+    }
+
+    enum class RunningState {
+        YIELDED,
+        DONE
+    }
 }
 
 /* Heap's algorithm
@@ -36,101 +123,3 @@ fun <T> permute(input: List<T>): List<List<T>> {
     }
     return perms
 }
-
-fun run(input: List<Int>, phaseSetting: Int, inputSignal: Int) : Int {
-    val opcodes = input.toMutableList()
-    var ip = 0
-    while (opcodes[ip] != 99) {
-        val opcodeString = opcodes[ip].toString().padStart(5, '0')
-        val parameterModes = opcodeString.substring(0, 3).map { ParameterMode.values()[it.toInt() - 48] }.reversed()
-        val opcode = opcodeString.substring(3).toInt()
-
-        val opcode3 = opcode3Gen(mutableListOf(phaseSetting, inputSignal))
-        val func = when (opcode) {
-            1 -> ::opcode1
-            2 -> ::opcode2
-            3 -> opcode3
-            4 -> ::opcode4
-            5 -> ::opcode5
-            6 -> ::opcode6
-            7 -> ::opcode7
-            8 -> ::opcode8
-            else -> ::opcode0
-        }
-
-        ip = func(opcodes, ip, parameterModes)
-    }
-
-    return opcodes[0]
-}
-
-fun opcode0(opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMode>) : Int {
-    // NO OP
-    return ip
-}
-
-fun opcode1(opcodes: MutableList<Int>, ip : Int, parameterModes: List<ParameterMode>) : Int {
-    val res = getParameterValues(opcodes, ip+1..ip+3, parameterModes.subList(0, 2)).sum()
-    val saveIndex = opcodes[ip + 3]
-    opcodes[saveIndex] = res
-    return ip + 4
-}
-
-fun opcode2(opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMode>) : Int {
-    val res = getParameterValues(opcodes, ip+1..ip+3, parameterModes.subList(0, 2)).reduce { acc, i -> acc * i }
-    val saveIndex = opcodes[ip+3]
-    opcodes[saveIndex] = res
-    return ip + 4
-}
-
-fun opcode3Gen(inputs: List<Int>) = fun (opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMode>) : Int {
-    println("Input: ${inputs[i % 2]}")
-    opcodes[opcodes[ip+1]] = inputs[(i++) % 2]
-    return ip + 2
-}
-
-fun opcode4(opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMode>) : Int {
-    inputSignal = getParameterValue(opcodes, ip + 1, parameterModes[0])
-    println("Output: $inputSignal")
-    return ip + 2
-}
-
-fun opcode5(opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMode>) : Int {
-    val (test, jumpPos) = getParameterValues(opcodes, ip+1..ip+2, parameterModes.subList(0, 2))
-    if(test != 0) return jumpPos
-    return ip + 3
-}
-
-fun opcode6(opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMode>) : Int {
-    val (test, jumpPos) = getParameterValues(opcodes, ip+1..ip+2, parameterModes.subList(0, 2))
-    if(test == 0) return jumpPos
-    return ip + 3
-}
-
-fun opcode7(opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMode>) : Int {
-    val (a, b) = getParameterValues(opcodes, ip+1..ip+2, parameterModes.subList(0, 2))
-    opcodes[opcodes[ip + 3]] = if(a < b) 1 else 0
-    return ip + 4
-}
-
-fun opcode8(opcodes: MutableList<Int>, ip: Int, parameterModes: List<ParameterMode>) : Int {
-    val (a, b) = getParameterValues(opcodes, ip+1..ip+2, parameterModes.subList(0, 2))
-    opcodes[opcodes[ip + 3]] = if(a == b) 1 else 0
-    return ip + 4
-}
-
-fun getParameterValue(opcodes: MutableList<Int>, ip: Int, parameterMode: ParameterMode) =
-    if (parameterMode == ParameterMode.POSITION_MODE)
-        opcodes[opcodes[ip]]
-    else
-        opcodes[ip]
-
-fun getParameterValues(opcodes: MutableList<Int>, ipRange: IntRange, parameterModes: List<ParameterMode>) : List<Int> {
-    return ipRange.zip(parameterModes).map { (ip, parameterMode) -> getParameterValue(opcodes, ip, parameterMode) }
-}
-
-enum class ParameterMode {
-    POSITION_MODE,
-    IMMEDIATE_MODE
-}
-
