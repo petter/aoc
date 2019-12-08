@@ -1,5 +1,3 @@
-package day4
-
 fun main() {
     val from = 245182
     val to = 790572

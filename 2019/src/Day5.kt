@@ -1,5 +1,3 @@
-package day5
-
 import java.io.File
 
 fun main() {

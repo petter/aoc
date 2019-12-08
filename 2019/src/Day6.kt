@@ -1,5 +1,3 @@
-package day6
-
 import java.io.File
 
 val spaceObjectsMap = HashMap<String, SpaceObject>()
