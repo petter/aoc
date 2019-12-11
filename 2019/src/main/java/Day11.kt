@@ -1,27 +1,75 @@
+package day11
+
+import java.awt.Color
+import java.awt.image.BufferedImage
 import java.io.File
+import javax.imageio.ImageIO
+import kotlin.collections.ArrayList
 
 fun main() {
-    val opcodes = File("in/day9.txt").readText().trim().split(",").map { it.toLong() }
-    //val opcodes = listOf(109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99).map { it.toLong() }
-    //val opcodes = listOf(1102,34915192,34915192,7,4,7,99,0).map { it.toLong() }
-    //val opcodes = listOf(104L,1125899906842624L,99L)
-    //val opcodes = listOf(3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,
-    //    1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,
-    //    999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99).map {it.toLong()}
-    //val opcodes = listOf(1, 0, 0, 0, 4, 0, 99).map { it.toLong() }
+    val opcodes = File("in/day11.txt").readText().trim().split(",").map { it.toLong() }
+    val program = IntCodeProgram(opcodes.toInfiniteArrayList(), mutableListOf(), mutableListOf())
+    val robot = PaintingRobot(program)
+    robot.paint()
+    println("Number of painted tiles: ${robot.paintedTiles.values.size}")
+    println(robot.paintedTiles.values)
 
-    IntCodeProgram(opcodes.toInfiniteArrayList()).run()
+    val maxX = robot.paintedTiles.map { (vec, _) -> vec.x }.max()!!
+    val minX = robot.paintedTiles.map { (vec, _) -> vec.x }.min()!!
+    val maxY = robot.paintedTiles.map { (vec, _) -> vec.y }.max()!!
+    val minY = robot.paintedTiles.map { (vec, _) -> vec.y }.min()!!
+    println("x ($minX, $maxX) y ($minY, $maxY)")
+    val image = BufferedImage(maxX - minX + 1, maxY - minY + 1, BufferedImage.TYPE_3BYTE_BGR)
+    robot.paintedTiles.forEach {(vec, color) -> image.setRGB(vec.x - minX, vec.y - minY, if(color == 1) Color(255, 255, 255).rgb else Color(0,0,0).rgb) }
+    ImageIO.write(image, "png", File("out/day11.png"))
+
 }
 
-fun List<Long>.toInfiniteArrayList() : InfiniteArrayList {
-    return InfiniteArrayList(this)
+class PaintingRobot(val program: IntCodeProgram) {
+
+    var facing = Facing.Up
+    private val facings = Facing.values()
+    var position = Vector2(0, 0)
+    val paintedTiles = mutableMapOf(Pair(position, 1))
+
+    fun paint() {
+        while (true) {
+            val tileColor = paintedTiles.getOrDefault(position, 0)
+            program.inputChannel.add(tileColor.toLong())
+            val state = program.run()
+            if(state == IntCodeProgram.RunState.DONE) return
+            program.run()
+
+            val color = program.outputChannel.removeAt(0).toInt()
+            paintedTiles[position] = color
+
+            turn(program.outputChannel.removeAt(0).toInt())
+            step()
+        }
+    }
+
+    fun turn(input: Int) {
+        val turn = if(input == 0) 3 else 1
+        facing = facings[(facings.indexOf(facing) + turn) % facings.size]
+    }
+
+    fun step() {
+        position += facing.vector2
+    }
+
+    enum class Facing(val vector2: Vector2) {
+        Left(Vector2(-1, 0)),
+        Up(Vector2(0, -1)),
+        Right(Vector2(1, 0)),
+        Down(Vector2(0, 1)),
+    }
 }
 
-class IntCodeProgram(private val opcodes: MutableList<Long>) {
+class IntCodeProgram(private val opcodes: InfiniteArrayList, val inputChannel: MutableList<Long>, val outputChannel: MutableList<Long>) {
     private var ip = 0
     private var relativeBase = 0
 
-    fun run() {
+    fun run() : RunState {
         while (opcodes[ip] != 99L) {
             val opcodeString = opcodes[ip].toString().padStart(5, '0')
             val parameterModes = opcodeString.substring(0, 3).map { ParameterMode.values()[it.toString().toInt()] }.reversed()
@@ -29,7 +77,7 @@ class IntCodeProgram(private val opcodes: MutableList<Long>) {
                 1 -> doOp(Long::plus, parameterModes)
                 2 -> doOp(Long::times, parameterModes)
                 3 -> opcode3(parameterModes)
-                4 -> opcode4(parameterModes)
+                4 -> { opcode4(parameterModes); return RunState.YIELDED }
                 5 -> jumpIf({ it != 0L }, parameterModes)
                 6 -> jumpIf({ it == 0L }, parameterModes)
                 7 -> comparison({a, b -> a < b}, parameterModes)
@@ -38,6 +86,8 @@ class IntCodeProgram(private val opcodes: MutableList<Long>) {
                 else -> error("Unsupported opcode")
             }
         }
+
+        return RunState.DONE
     }
 
     private fun doOp(op: (Long, Long) -> Long, parameterModes: List<ParameterMode>) {
@@ -47,15 +97,20 @@ class IntCodeProgram(private val opcodes: MutableList<Long>) {
     }
 
     private fun opcode3(parameterModes: List<ParameterMode>) {
-        print("Input: ")
-        val inputVal = readLine()?.toLong() ?: 0L
+        var inputVal = 0L
+        if(inputChannel.isEmpty()) {
+            print("Input: ")
+            inputVal = readLine()?.toLong() ?: 0L
+        } else {
+            inputVal = inputChannel.removeAt(0)
+        }
         write(inputVal, ip + 1, parameterModes[0])
         ip += 2
     }
 
     private fun opcode4(parameterModes: List<ParameterMode>) {
         val outputVal = getParameterValue(ip + 1, parameterModes[0])
-        println("Output: $outputVal")
+        outputChannel.add(outputVal)
         ip += 2
     }
 
@@ -98,6 +153,11 @@ class IntCodeProgram(private val opcodes: MutableList<Long>) {
         IMMEDIATE_MODE,
         RELATIVE_MODE
     }
+
+    enum class RunState {
+        YIELDED,
+        DONE
+    }
 }
 
 class InfiniteArrayList(): ArrayList<Long>() {
@@ -121,4 +181,14 @@ class InfiniteArrayList(): ArrayList<Long>() {
         return super.set(index, element)
     }
 
+}
+
+data class Vector2(val x: Int, val y: Int) {
+    operator fun plus(other: Vector2) = Vector2(x + other.x, y + other.y)
+    operator fun minus(other: Vector2) = Vector2(x - other.x, y - other.y)
+    operator fun times(number: Int) = Vector2(x * number, y * number)
+}
+
+fun List<Long>.toInfiniteArrayList() : InfiniteArrayList {
+    return InfiniteArrayList(this)
 }

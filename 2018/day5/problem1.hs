@@ -16,6 +16,8 @@ polymerReactCycle (a:b:abs)
     | a /= b && (toLower a) == (toLower b) = polymerReactCycle abs
     | otherwise = a : (polymerReactCycle (b:abs))
 
+
 main = do
     contents <- readFile "input.txt"
     putStrLn (show (length (polymerReact contents)))
+
