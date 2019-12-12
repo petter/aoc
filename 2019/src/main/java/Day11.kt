@@ -26,7 +26,6 @@ fun main() {
 }
 
 class PaintingRobot(val program: IntCodeProgram) {
-
     var facing = Facing.Up
     private val facings = Facing.values()
     var position = Vector2(0, 0)
