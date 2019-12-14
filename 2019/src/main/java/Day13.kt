@@ -1,38 +1,177 @@
 package day13
 
+import java.awt.*
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import java.io.File
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.Timer
+
+
+//fun main() {
+//
+//    val blocks = game.map.filter { it.value == 2 }.size
+//    println("Number of blocks: $blocks")
+//}
+
+fun initGUI() {
+}
 
 fun main() {
+    EventQueue.invokeLater {
+        val frame = Canvas()
+        frame.isVisible = true
+    }
+}
 
-    val opcodes = File("in/day13.txt").readText().trim().split(",").map { it.toLong() }.toInfiniteArrayList()
-    val program = IntCodeProgram(opcodes = opcodes)
-    val game = Game(program)
-    game.run()
-    val blocks = game.map.filter { it.value == 2 }.size
-    println("Number of blocks: $blocks")
+class Canvas : JFrame() {
+    init {
+        initUI()
+    }
+    private fun initUI() {
+
+        val opcodes = File("in/day13.txt").readText().trim().split(",").map { it.toLong() }.toInfiniteArrayList()
+        val program = IntCodeProgram(opcodes = opcodes)
+        val game = Game(program)
+        add(Board(game))
+
+        title = "Day 13"
+
+        isResizable = false
+        pack()
+
+        setLocationRelativeTo(null)
+        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+    }
+}
+
+class Board(val game: Game) : JPanel(), ActionListener {
+
+    private var timer: Timer? = null
+    private val blockSize = 10
+
+    private val blockColors = listOf(
+        Color(0,0,0),
+        Color(255,255,255),
+        Color(200,200,200),
+        Color(0,255,0),
+        Color(255,0,0)
+    )
+    private var leftDirection = false
+    private var rightDirection = true
+
+    init {
+
+        addKeyListener(TAdapter())
+        background = Color.black
+        isFocusable = true
+        preferredSize = Dimension(500, 500)
+        initGame()
+    }
+
+    private fun initGame() {
+
+        while (!game.map.containsValue(3)) game.run()
+        timer = Timer(5, this)
+        timer!!.start()
+    }
+
+    private fun drawGame(g: Graphics) {
+        game.map.forEach { (x,y), block ->
+            g.color = blockColors[block]
+            g.fillRect(x*blockSize,y*blockSize,blockSize,blockSize)
+        }
+
+
+    }
+
+    public override fun paintComponent(g: Graphics) {
+        super.paintComponent(g)
+
+        drawGame(g)
+        doDrawing(g)
+    }
+
+    private fun doDrawing(g: Graphics) {
+        Toolkit.getDefaultToolkit().sync()
+    }
+
+    private inner class TAdapter : KeyAdapter() {
+
+        override fun keyPressed(e: KeyEvent?) {
+
+            val key = e!!.keyCode
+
+            when (key) {
+                KeyEvent.VK_A -> game.aiActive = !game.aiActive
+                KeyEvent.VK_LEFT -> game.program.input = -1
+                KeyEvent.VK_RIGHT -> game.program.input = 1
+            }
+
+        }
+
+        override fun keyReleased(e: KeyEvent?) {
+            val key = e!!.keyCode
+            if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_RIGHT) game.program.input = 0
+        }
+    }
+
+    override fun actionPerformed(p0: ActionEvent?) {
+        gameLoop()
+    }
+
+    private fun gameLoop() {
+
+        game.run()
+        println("Score: ${game.score}")
+        repaint()
+    }
 }
 
 class Game(val program: IntCodeProgram) {
     val map = mutableMapOf<Pair<Int, Int>, Int>()
+    var score = 0
+    var aiActive = true
     fun run() {
         var intcodeState = IntCodeProgram.RunState.YIELDED
-        while (intcodeState != IntCodeProgram.RunState.DONE) {
+        while (intcodeState != IntCodeProgram.RunState.DONE && program.outputChannel.size < 3) {
             intcodeState = program.run()
         }
 
-        while (program.outputChannel.isNotEmpty()) {
+        if(program.outputChannel.isNotEmpty()) {
             val x = program.outputChannel.removeAt(0).toInt()
             val y = program.outputChannel.removeAt(0).toInt()
             val blockId = program.outputChannel.removeAt(0).toInt()
-            map[Pair(x, y)] = blockId
+            if (x != -1) map[Pair(x, y)] = blockId
+            else score = blockId
         }
+
+
+        if (!aiActive) return
+
+        val l = map.toList()
+        val ball = l.find { it.second == 4 }
+        val paddle = l.find { it.second == 3 }
+
+        if (ball == null || paddle == null) return
+        val ballX = ball.first.first
+        val paddleX = paddle.first.first
+
+        if (ballX < paddleX) program.input = -1
+        else if (ballX > paddleX) program.input = 1
+        else program.input = 0
     }
+
 }
 
 class IntCodeProgram(private val opcodes: InfiniteArrayList, val inputChannel: MutableList<Long> = mutableListOf(), val outputChannel: MutableList<Long> = mutableListOf()) {
     private var ip = 0
     private var relativeBase = 0
 
+    var input = 0
     fun run() : RunState {
         while (opcodes[ip] != 99L) {
             val opcodeString = opcodes[ip].toString().padStart(5, '0')
@@ -61,14 +200,7 @@ class IntCodeProgram(private val opcodes: InfiniteArrayList, val inputChannel: M
     }
 
     private fun opcode3(parameterModes: List<ParameterMode>) {
-        var inputVal = 0L
-        if(inputChannel.isEmpty()) {
-            print("Input: ")
-            inputVal = readLine()?.toLong() ?: 0L
-        } else {
-            inputVal = inputChannel.removeAt(0)
-        }
-        write(inputVal, ip + 1, parameterModes[0])
+        write(input.toLong(), ip + 1, parameterModes[0])
         ip += 2
     }
 
