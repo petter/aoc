@@ -10,16 +10,6 @@ import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.Timer
 
-
-//fun main() {
-//
-//    val blocks = game.map.filter { it.value == 2 }.size
-//    println("Number of blocks: $blocks")
-//}
-
-fun initGUI() {
-}
-
 fun main() {
     EventQueue.invokeLater {
         val frame = Canvas()
@@ -52,6 +42,8 @@ class Board(val game: Game) : JPanel(), ActionListener {
 
     private var timer: Timer? = null
     private val blockSize = 10
+    private val aiTimerDelay = 5
+    private val playerTimerDelay = 150
 
     private val blockColors = listOf(
         Color(0,0,0),
@@ -75,7 +67,7 @@ class Board(val game: Game) : JPanel(), ActionListener {
     private fun initGame() {
 
         while (!game.map.containsValue(3)) game.run()
-        timer = Timer(5, this)
+        timer = Timer(1, this)
         timer!!.start()
     }
 
@@ -120,6 +112,7 @@ class Board(val game: Game) : JPanel(), ActionListener {
     }
 
     override fun actionPerformed(p0: ActionEvent?) {
+        timer!!.delay = if(game.aiActive) aiTimerDelay else playerTimerDelay
         gameLoop()
     }
 
@@ -135,30 +128,28 @@ class Game(val program: IntCodeProgram) {
     val map = mutableMapOf<Pair<Int, Int>, Int>()
     var score = 0
     var aiActive = true
+    var ballX = 0
+    var paddleX = 0
     fun run() {
         var intcodeState = IntCodeProgram.RunState.YIELDED
-        while (intcodeState != IntCodeProgram.RunState.DONE && program.outputChannel.size < 3) {
+        var i = 0
+        while (intcodeState != IntCodeProgram.RunState.DONE && (i % 3 != 0 || i == 0 || program.outputChannel[i-1] == 0L)) {
             intcodeState = program.run()
+            i++
         }
 
-        if(program.outputChannel.isNotEmpty()) {
+        while(program.outputChannel.isNotEmpty()) {
             val x = program.outputChannel.removeAt(0).toInt()
             val y = program.outputChannel.removeAt(0).toInt()
             val blockId = program.outputChannel.removeAt(0).toInt()
             if (x != -1) map[Pair(x, y)] = blockId
             else score = blockId
+
+            if (blockId == 4) ballX = x
+            if (blockId == 3) paddleX = x
         }
 
-
         if (!aiActive) return
-
-        val l = map.toList()
-        val ball = l.find { it.second == 4 }
-        val paddle = l.find { it.second == 3 }
-
-        if (ball == null || paddle == null) return
-        val ballX = ball.first.first
-        val paddleX = paddle.first.first
 
         if (ballX < paddleX) program.input = -1
         else if (ballX > paddleX) program.input = 1
@@ -277,12 +268,6 @@ class InfiniteArrayList(): ArrayList<Long>() {
         return super.set(index, element)
     }
 
-}
-
-data class Vector2(val x: Int, val y: Int) {
-    operator fun plus(other: Vector2) = Vector2(x + other.x, y + other.y)
-    operator fun minus(other: Vector2) = Vector2(x - other.x, y - other.y)
-    operator fun times(number: Int) = Vector2(x * number, y * number)
 }
 
 fun List<Long>.toInfiniteArrayList() : InfiniteArrayList {
