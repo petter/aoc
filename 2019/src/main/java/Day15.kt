@@ -11,6 +11,11 @@ fun main() {
     robot.explore()
     println(robot.maze.toString())
     println("Shortest path to oxygen: ${robot.maze.findShortestPath(robot.maze.startPos, robot.maze.finishPosition!!)?.size}")
+
+    // Should have done a BFS instead, but I'm lazy
+    val allPositions = robot.maze.map.filter { it.value is Maze.Path }.map { it.key }
+    val longestPath = allPositions.map { robot.maze.findShortestPath(robot.maze.finishPosition!!, it)!!.size }.max()
+    println("Everything will be filled with oxygen in $longestPath mins")
 }
 
 enum class Direction(val num: Long) {
