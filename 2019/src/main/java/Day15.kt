@@ -1,3 +1,7 @@
+package day15
+
+import IntCodeProgram
+
 typealias Position = Pair<Int, Int>
 
 fun main() {

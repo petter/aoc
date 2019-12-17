@@ -6,7 +6,7 @@ class IntCodeProgram(private val opcodes: InfiniteArrayList, val inputChannel: M
 
     companion object {
         fun fromFile(filePath: String): IntCodeProgram {
-            val opcodes = File("in/day15.txt").readText().trim().split(",").map { it.toLong() }.toInfiniteArrayList()
+            val opcodes = File(filePath).readText().trim().split(",").map { it.toLong() }.toInfiniteArrayList()
             return IntCodeProgram(opcodes)
         }
     }
