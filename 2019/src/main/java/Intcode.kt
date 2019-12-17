@@ -1,6 +1,6 @@
 import java.io.File
 
-class IntCodeProgram(private val opcodes: InfiniteArrayList, val inputChannel: MutableList<Long> = mutableListOf(), val outputChannel: MutableList<Long> = mutableListOf()) {
+class IntCodeProgram(private val opcodes: InfiniteArrayList,  val inputChannel: MutableList<Long> = mutableListOf(), val outputChannel: MutableList<Long> = mutableListOf()) {
     private var ip = 0
     private var relativeBase = 0
 
@@ -9,6 +9,10 @@ class IntCodeProgram(private val opcodes: InfiniteArrayList, val inputChannel: M
             val opcodes = File(filePath).readText().trim().split(",").map { it.toLong() }.toInfiniteArrayList()
             return IntCodeProgram(opcodes)
         }
+    }
+
+    fun changeMemory(position: Int, value: Long) {
+        opcodes[position] = value
     }
 
     fun run() : RunState {
