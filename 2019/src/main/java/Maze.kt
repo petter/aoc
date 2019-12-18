@@ -1,104 +1,3 @@
-package day17
-
-import IntCodeProgram
-import java.util.zip.Deflater
-import kotlin.math.min
-
-typealias Position = Pair<Int, Int>
-
-fun main() {
-    solveA()
-    solveB()
-}
-
-fun createIntcodeProgram(): IntCodeProgram {
-
-    val program = IntCodeProgram.fromFile("in/day17.txt")
-    return program
-}
-fun createMaze(): Maze {
-    val program = createIntcodeProgram()
-    val maze = Maze()
-
-    while(program.run() != IntCodeProgram.RunState.DONE);
-
-    val inputMaze = String(program.outputChannel.map { it.toChar() }.toCharArray()).lines()
-    inputMaze.forEachIndexed { y, line -> line.forEachIndexed { x, c ->
-        maze.addBlock(x to y, if(c == '.') 0 else 1)
-        if(c == '^') maze.robotPosition = x to y
-    } }
-    return maze
-}
-
-fun solveA() {
-    val maze = createMaze()
-    val alignmentParameterSum = maze.map.filter { it.value is Maze.Path && it.value.neighbors.filterIsInstance<Maze.Path>().size == 4 }.map { it.value.position.first * it.value.position.second }.sum()
-    println("Sum of alignment parameter sum: $alignmentParameterSum")
-}
-
-fun solveB() {
-    val program = createIntcodeProgram()
-    program.changeMemory(0, 2L)
-    val maze = createMaze()
-    val steps = maze.findLeastTurningPath(maze.robotPosition!!)!!
-
-    var curDir = Direction.North
-    val reducedSteps = mutableListOf(turn(curDir, steps.first()) to 0)
-    curDir = steps.first()
-    for (step in steps) {
-        val curPair = reducedSteps.last()
-        if (step == curDir) {
-            reducedSteps[reducedSteps.size - 1] = curPair.first to curPair.second + 1
-        } else {
-            reducedSteps.add(turn(curDir, step) to 1)
-            curDir = step
-        }
-    }
-
-    val stepString = reducedSteps.joinToString (",", transform = { "${it.first},${it.second}" })
-    //val patterns = mutableListOf<String>()
-    //var tempString = stepString
-    //for (i in 1..3) {
-    //    val pattern = findPattern(tempString)
-    //    patterns.add(pattern)
-    //    tempString = tempString.replace("$pattern,", "")
-    //}
-
-    val patterns = listOf("L,4,R,8,L,6,L,10", "L,6,R,8,R,10,L,6,L,6", "L,4,L,4,L,10")
-    val finalString = patterns.foldIndexed(stepString, {i, acc, pattern ->  acc.replace(pattern, (i+65).toChar().toString())})
-    println(patterns)
-    println("Instruction: $finalString")
-
-    stringToInput(program, finalString)
-    patterns.forEach { stringToInput(program, it) }
-    stringToInput(program, "n")
-    println(program.inputChannel)
-
-    while (program.run() != IntCodeProgram.RunState.DONE);
-
-    println(program.outputChannel.last())
-}
-
-fun stringToInput(program: IntCodeProgram, s: String) {
-    s.forEach { program.inputChannel.add(it.toLong()) }
-    program.inputChannel.add(10L)
-}
-
-fun findPattern(s : String) : String {
-    var prevMatches = 0
-
-    var pattern = ""
-    for (i in 4 until min(s.length, 21)) {
-        if(s[i] == ',') continue
-        val newPattern = s.substring(0..i)
-        val numMatches = Regex(newPattern).findAll(s).count()
-        if(numMatches < prevMatches) return pattern
-        prevMatches = numMatches
-        pattern = newPattern
-    }
-    return pattern
-}
-
 enum class Direction(val num: Long) {
     North(1L),
     South(2L),
@@ -114,16 +13,6 @@ fun direction(from: Position, to: Position) : Direction =
         else -> Direction.South
     }
 
-fun turn(from: Direction, to: Direction) : String {
-   val orderedDirections = listOf(Direction.North, Direction.East, Direction.South, Direction.West)
-    val fromIndex = orderedDirections.indexOf(from)
-    return when (orderedDirections.indexOf(to)) {
-        (fromIndex + 1) % orderedDirections.size ->  "R"
-        (fromIndex + 3) % orderedDirections.size ->  "L"
-        else                                     ->  "R,R"
-    }
-}
-
 infix operator fun Pair<Int, Int>.plus(direction: Direction) : Pair<Int, Int> =
     when (direction) {
         Direction.North -> this.first     to this.second - 1
@@ -133,14 +22,25 @@ infix operator fun Pair<Int, Int>.plus(direction: Direction) : Pair<Int, Int> =
     }
 
 class Maze() {
-    var robotPosition : Position? = null
     val map = mutableMapOf<Position, Block>()
+
+    companion object {
+        fun fromString(s: String, blockIdentityFunction: (Char) -> Int) : Maze {
+            val maze = Maze()
+            s.lines().forEachIndexed { y, line -> line.forEachIndexed { x, c -> maze.addBlock(x to y, blockIdentityFunction(c)) } }
+            return maze
+        }
+    }
+
+    enum class BlockTypes {
+        Wall,
+        Path
+    }
 
     fun addBlock(position: Position, type: Int) {
         val block = when (type) {
             0 -> Wall(position)
             1 -> Path(position)
-            2 -> Path(position)
             else -> error("Invalid block type $type")
         }
 
@@ -164,7 +64,7 @@ class Maze() {
         var res = ""
         for (y in minY..maxY) {
             for (x in minX..maxX) {
-                res += if(Pair(x, y) == robotPosition) '^' else map[x to y]?.toString() ?: " "
+                res += map[x to y]?.toString() ?: " "
             }
             res += "\n"
         }
