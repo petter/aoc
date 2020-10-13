@@ -9,19 +9,19 @@ sides :: [Int] -> [(Int, Int)]
 sides [w, h, l] = [(w, h), (w, l), (h, l)]
 
 calcSides :: [Int] -> [Int]
-calcSides dimensions = fmap (uncurry (*)) $ sides dimensions
+calcSides = fmap (uncurry (*)) . sides
 
 boxSurfaceArea :: [Int] -> Int
-boxSurfaceArea dimensions = (2 *) $ sum $ calcSides dimensions
+boxSurfaceArea = (2 *) . sum . calcSides
 
 boxSlack :: [Int] -> Int
-boxSlack dimensions = minimum $ calcSides dimensions
+boxSlack = minimum . calcSides
 
 calcNeededWrappingPaper :: [Int] -> Int
 calcNeededWrappingPaper dimensions = (boxSurfaceArea dimensions) + (boxSlack dimensions)
 
 calcBoxes :: [[Int]] -> Int
-calcBoxes boxes = sum $ map calcNeededWrappingPaper boxes
+calcBoxes = sum . map calcNeededWrappingPaper
 
 main :: IO ()
 main = do

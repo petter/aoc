@@ -22,5 +22,5 @@ floorParser2 s = floorParser2Helper s 0 0
 main :: IO ()
 main = do
   contents <- readFile "day01.txt"
-  putStrLn $ show $ floorParser contents
-  putStrLn $ show $ floorParser2 contents
+  print $ floorParser contents
+  print $ floorParser2 contents
