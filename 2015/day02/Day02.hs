@@ -1,4 +1,4 @@
-module Day01 where
+module Day02 where
 
 import Data.List
 import Data.List.Split (splitOn)
