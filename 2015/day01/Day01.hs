@@ -1,23 +1,16 @@
 module Day01 where
 
-parseFloor :: Char -> Int -> Int
-parseFloor '(' n = n + 1
-parseFloor ')' n = n - 1
+import Data.List
 
-floorParserHelper :: [Char] -> Int -> Int
-floorParserHelper (c : cs) n = floorParserHelper cs $ parseFloor c n
-floorParserHelper [] n = n
+parseFloor :: Char -> Int
+parseFloor '(' = 1
+parseFloor ')' = (-1)
 
 floorParser :: [Char] -> Int
-floorParser s = floorParserHelper s 0
+floorParser = sum . fmap parseFloor
 
-floorParser2Helper :: [Char] -> Int -> Int -> Int
-floorParser2Helper _ (-1) charPos = charPos
-floorParser2Helper [] _ _ = -1
-floorParser2Helper (c : cs) n charPos = floorParser2Helper cs (parseFloor c n) (charPos + 1)
-
-floorParser2 :: [Char] -> Int
-floorParser2 s = floorParser2Helper s 0 0
+floorParser2 :: [Char] -> Maybe Int
+floorParser2 = findIndex (== -1) . scanl (+) 0 . fmap parseFloor
 
 main :: IO ()
 main = do

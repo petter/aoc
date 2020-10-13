@@ -5,11 +5,10 @@ import Data.List.Split (splitOn)
 parse :: String -> [[Int]]
 parse xs = map (fmap read . splitOn "x") $ lines xs
 
-sides :: [Int] -> [(Int, Int)]
-sides [w, h, l] = [(w, h), (w, l), (h, l)]
-
 calcSides :: [Int] -> [Int]
 calcSides = fmap (uncurry (*)) . sides
+  where
+    sides [w, h, l] = [(w, h), (w, l), (h, l)]
 
 boxSurfaceArea :: [Int] -> Int
 boxSurfaceArea = (2 *) . sum . calcSides
