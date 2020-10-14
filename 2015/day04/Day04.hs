@@ -15,10 +15,10 @@ hashMatching regex = fmap (+ 1) $ findIndex correctHash hashes
     input = "iwrupvqb"
 
 part1 :: Maybe Int
-part1 = hashMatching "^[0]{5}.*"
+part1 = hashMatching "^0{5}.*"
 
 part2 :: Maybe Int
-part2 = hashMatching "^[0]{6}.*"
+part2 = hashMatching "^0{6}.*"
 
 main :: IO ()
 main = do
