@@ -1,5 +1,6 @@
 module Day03 where
 
+import Control.Lens (indices, toListOf, traversed)
 import qualified Data.Set as Set
 
 setPlus :: (Int, Int) -> (Int, Int) -> (Int, Int)
@@ -22,7 +23,18 @@ part1 route = length $ walk route curPos $ Set.fromList [curPos]
   where
     curPos = (0, 0)
 
+part2 :: [Char] -> Int
+part2 route = length $ Set.union santaPath robotPath
+  where
+    startPos = (0, 0)
+    walkRoute instructions = walk instructions startPos $ Set.fromList [startPos]
+    santaInstructions = toListOf (traversed . indices even) route
+    robotInstructions = toListOf (traversed . indices odd) route
+    santaPath = walkRoute santaInstructions
+    robotPath = walkRoute robotInstructions
+
 main :: IO ()
 main = do
   contents <- readFile "input.txt"
   print $ part1 contents
+  print $ part2 contents
