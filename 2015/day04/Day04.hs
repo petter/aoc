@@ -6,7 +6,7 @@ import Text.Regex.TDFA ((=~))
 import Text.Regex.TDFA.Text ()
 
 hashMatching :: String -> Maybe Int
-hashMatching regex = findIndex correctHash hashes
+hashMatching regex = fmap (+ 1) $ findIndex correctHash hashes
   where
     correctHash :: String -> Bool
     correctHash = (=~ regex)
