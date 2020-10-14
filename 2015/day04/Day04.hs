@@ -1,19 +1,26 @@
-module Day04 where
+module Main where
 
 import qualified Data.Hash.MD5 as MD5
 import Data.List (findIndex)
 import Text.Regex.TDFA ((=~))
 import Text.Regex.TDFA.Text ()
 
-part1 :: String -> Maybe Int
-part1 input = findIndex correctHash hashes
+hashMatching :: String -> Maybe Int
+hashMatching regex = findIndex correctHash hashes
   where
     correctHash :: String -> Bool
-    correctHash = (=~ "^[0]{5}.*")
+    correctHash = (=~ regex)
     hash = MD5.md5s . MD5.Str
     hashes = fmap (hash . (input ++) . show) [1 ..]
+    input = "iwrupvqb"
+
+part1 :: Maybe Int
+part1 = hashMatching "^[0]{5}.*"
+
+part2 :: Maybe Int
+part2 = hashMatching "^[0]{6}.*"
 
 main :: IO ()
 main = do
-  input <- return "iwrupvqb"
-  print $ part1 input
+  print $ part1
+  print $ part2
