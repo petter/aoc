@@ -22,19 +22,16 @@ part1 :: String -> Int
 part1 = length . filter (isNiceString [containsTwoVowels, containsDoubleLetter, notContainsUnwantedString]) . lines
 
 containsReoccuringPair :: String -> Bool
-containsReoccuringPair [] = False
-containsReoccuringPair (_ : []) = False
-containsReoccuringPair (c1 : c2 : cs) = case [c1, c2] `isInfixOf` cs of
-  True -> True
-  False -> containsReoccuringPair (c2 : cs)
+containsReoccuringPair (c1 : c2 : cs)
+  | [c1, c2] `isInfixOf` cs = True
+  | otherwise = containsReoccuringPair (c2 : cs)
+containsReoccuringPair _ = False
 
 containsReoccuringLetter :: String -> Bool
-containsReoccuringLetter [] = False
-containsReoccuringLetter (_ : []) = False
-containsReoccuringLetter (_ : _ : []) = False
-containsReoccuringLetter (c1 : c2 : c3 : cs) = case c1 == c3 of
-  True -> True
-  False -> containsReoccuringLetter (c2 : c3 : cs)
+containsReoccuringLetter (c1 : c2 : c3 : cs)
+  | c1 == c3 = True
+  | otherwise = containsReoccuringLetter (c2 : c3 : cs)
+containsReoccuringLetter _ = False
 
 part2 :: String -> Int
 part2 = length . filter (isNiceString [containsReoccuringPair, containsReoccuringLetter]) . lines
