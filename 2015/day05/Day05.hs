@@ -3,6 +3,7 @@ module Main where
 import Data.List (isInfixOf)
 import Text.Regex.TDFA
 import Text.Regex.TDFA.Text ()
+import Control.Monad
 
 containsTwoVowels :: String -> Bool
 containsTwoVowels = (=~ (vowel ++ ".*" ++ vowel ++ ".*" ++ vowel))
@@ -18,8 +19,13 @@ notContainsUnwantedString = not . (=~ "ab|cd|pq|xy")
 isNiceString :: [String -> Bool] -> String -> Bool
 isNiceString rules s = all id $ fmap ($ s) rules
 
+-- (.&&.) = liftM2 (&&)
+
 part1 :: String -> Int
-part1 = length . filter (isNiceString [containsTwoVowels, containsDoubleLetter, notContainsUnwantedString]) . lines
+-- part1 = length . filter (containsTwoVowels .&&. notContainsUnwantedString .&&. containsDoubleLetter) . lines
+
+part1 = length . filter (liftM3 (((&&) .) . (&&)) containsTwoVowels notContainsUnwantedString containsDoubleLetter) . lines
+
 
 containsReoccuringPair :: String -> Bool
 containsReoccuringPair (c1 : c2 : cs)
