@@ -50,8 +50,8 @@ wordParser = do
   w <- many1 alphaNum
   return w
 
-doActions :: [Action] -> Map.Map Coord Int
-doActions = foldl doAction Map.empty
+doActions1 :: [Action] -> Map.Map Coord Int
+doActions1 = foldl doAction Map.empty
   where
     genBox :: Coord -> Coord -> [Coord]
     genBox (Coord x1 y1) (Coord x2 y2) = [Coord a b | a <- [x1 .. x2], b <- [y1 .. y2]]
@@ -62,10 +62,23 @@ doActions = foldl doAction Map.empty
     doAction mp (TurnOff c1 c2) = doActionHelper const (-1) mp c1 c2
     doAction mp (Toggle c1 c2) = doActionHelper ((*) . negate) 1 mp c1 c2
 
-part1 = length . Map.filter (== 1) . doActions
+part1 = length . Map.filter (== 1) . doActions1
+
+doActions2 :: [Action] -> Map.Map Coord Int
+doActions2 = foldl doAction startMap
+  where
+    startMap = Map.fromList $ fmap (flip (,) 0) $ genBox (Coord 0 0) (Coord 999 999)
+    genBox (Coord x1 y1) (Coord x2 y2) = [Coord a b | a <- [x1 .. x2], b <- [y1 .. y2]]
+    doActionHelper f n mp c1 c2 = foldr (flip (Map.insertWith f) n) mp $ genBox c1 c2
+    doAction mp (TurnOn c1 c2) = doActionHelper (+) 1 mp c1 c2
+    doAction mp (TurnOff c1 c2) = doActionHelper ((max 0 .) . subtract) 1 mp c1 c2
+    doAction mp (Toggle c1 c2) = doActionHelper (+) 2 mp c1 c2
+
+part2 = Map.foldl (+) 0 . doActions2
 
 main :: IO ()
 main = do
   contents <- readFile "input.txt"
   actions <- return $ fromRight [] . traverse (parse actionParser "action parser") $ lines contents
   print $ part1 actions
+  print $ part2 actions
