@@ -28,21 +28,29 @@ maxX = maximum . fmap fst . M.keys
 maxY :: GeologyMap -> Int
 maxY = maximum . fmap snd . M.keys 
 
-part1 :: GeologyMap -> Int
-part1 gm = helper (0,0) 0
+rideWithPattern :: Point -> GeologyMap -> Int
+rideWithPattern (deltaX, deltaY) gm = helper (0,0) 0
     where
         modValue = maxX gm + 1
         lastY = maxY gm + 1
         gpToInt gp = if gp == Tree then 1 else 0
         helper (x, y) trees = 
-            if y == lastY then
+            if y >= lastY then
                 trees
             else
-                helper (x + 3, y + 1) $ (trees +) $ gpToInt $ fromJust $ M.lookup (x `mod` modValue, y) gm
+                helper (x + deltaX, y + deltaY) $ (trees +) $ gpToInt $ fromJust $ M.lookup (x `mod` modValue, y) gm
             
 
 main :: IO ()
 main = do
     file <- readFile "input.txt"
     let geologyMap = parser file
-    print $ part1 geologyMap
+    print $ rideWithPattern (3, 1) geologyMap
+
+    let patterns = 
+            [ (1, 1)
+            , (3, 1)
+            , (5, 1)
+            , (7, 1)
+            , (1, 2) ]
+    print $ product $ (flip rideWithPattern) geologyMap <$> patterns
