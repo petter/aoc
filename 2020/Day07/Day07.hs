@@ -52,18 +52,27 @@ parser = Map.fromList . either (error . show) id . parse fileParser "file parser
             string "no other bags" 
             return []
 
-allContainedBags :: String -> Map.Map String [(Int, String)] -> [String]
-allContainedBags bag bagMap = fmap snd cur `union` childBags
+allContainedBags :: Map.Map String [(Int, String)] -> String -> [(Int, String)]
+allContainedBags bagMap bag = cur `union` childBags
     where 
         cur = bagMap ! bag
-        childBags :: [String]
-        childBags = foldl (\c (_, k) -> c `union` allContainedBags k bagMap) [] cur
+        childBags = foldl (\c (_, k) -> c ++ allContainedBags bagMap k) [] cur
+
+flatten :: [[a]] -> [a]
+flatten = foldl (++) []
 
 part1 :: Map.Map String [(Int, String)] -> Int
-part1 bagMap = length $ filter (elem "shiny gold") $ fmap ((flip $ allContainedBags) bagMap) $ Map.keys bagMap
+part1 bagMap = length $ filter (\(_, x) -> x == "shiny gold") $ flatten $ allContainedBags bagMap <$> Map.keys bagMap
+
+part2 :: Map.Map String [(Int, String)] -> Int
+part2 bagMap = f (bagMap ! "shiny gold")
+    where 
+        f [] = 0
+        f l = sum $ (\(n, ll) -> n + n * f (bagMap ! ll)) <$> l
 
 main :: IO ()
 main = do
    file <- readFile "input.txt"
    let bagMap = parser file
    print $ part1 bagMap
+   print $ part2 bagMap
