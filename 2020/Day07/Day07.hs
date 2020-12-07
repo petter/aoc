@@ -21,15 +21,12 @@ import Text.Parsec
 import Text.Parsec.Char (space, newline)
 import Text.Parsec.String (Parser)
 import Data.Either (fromRight)
-import Data.List (nub, intersect)
+import Data.List (nub, union)
+import qualified Data.Map as Map
+import Data.Map ((!))
 
-data Rule = Rule String [Product]
-    deriving (Show)
-data Product = Product Int String
-    deriving (Show)
-
-parser :: String -> [Rule]
-parser = either (error . show) id . parse fileParser "file parser"
+parser :: String -> Map.Map String [(Int, String)]
+parser = Map.fromList . either (error . show) id . parse fileParser "file parser"
     where
         fileParser = lineParser `endBy` newline
         lineParser = do
@@ -39,7 +36,7 @@ parser = either (error . show) id . parse fileParser "file parser"
             space
             prods <- try none <|> productParser `sepBy` string ", " 
             char '.'
-            pure $ Rule rule prods
+            pure $ (rule, prods)
         word = many1 letter
         bagNameParser = do
             word1 <- word <* space 
@@ -50,13 +47,23 @@ parser = either (error . show) id . parse fileParser "file parser"
             n <- read <$> many1 digit
             space
             bag <- bagNameParser
-            pure $ Product n bag
+            pure $ (n, bag)
         none = do
             string "no other bags" 
             return []
 
+allContainedBags :: String -> Map.Map String [(Int, String)] -> [String]
+allContainedBags bag bagMap = fmap snd cur `union` childBags
+    where 
+        cur = bagMap ! bag
+        childBags :: [String]
+        childBags = foldl (\c (_, k) -> c `union` allContainedBags k bagMap) [] cur
+
+part1 :: Map.Map String [(Int, String)] -> Int
+part1 bagMap = length $ filter (elem "shiny gold") $ fmap ((flip $ allContainedBags) bagMap) $ Map.keys bagMap
+
 main :: IO ()
 main = do
    file <- readFile "input.txt"
-   let rules = parser file
-   print rules
+   let bagMap = parser file
+   print $ part1 bagMap
