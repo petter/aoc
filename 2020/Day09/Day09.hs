@@ -15,9 +15,23 @@ part1 nums = rec preamble startList
         preamble = take 25 nums
         startList = drop 25 nums
     
+part2 :: Int -> [Int] -> Maybe Int
+part2 _ [] = Nothing
+part2 n xs = 
+    if sum nums == n then
+        Just (minimum nums + maximum nums)
+    else 
+        part2 n $ tail xs
+    where
+        nums = takeWhileList ((< n) . sum) xs
 
+takeWhileList shouldTake xs = rec [] xs
+    where
+        rec curList (y:ys) = if shouldTake curList then rec (curList ++ [y]) ys else curList
 main :: IO ()
 main = do
     file <- readFile "input.txt"
     let nums = read <$> lines file
-    print $ part1 nums
+    let invalidNum = part1 nums
+    print invalidNum
+    print $ (flip part2) nums <$> invalidNum
