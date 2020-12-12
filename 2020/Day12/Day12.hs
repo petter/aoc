@@ -63,18 +63,47 @@ part1 actions = manhattanDistance $ snd $ move actions (0, (0,0))
         doAction (TurnLeft n) (deg, (x, y)) = ((deg + n) `mod` 360, (x, y))
         doAction (TurnRight n) (deg, (x, y)) = (newDeg `mod` 360, (x, y))
             where
-                _deg = (deg - n)
+                newDeg' = deg - n
                 newDeg = 
-                    if _deg < 0 then
-                        360 + _deg
-                    else 
-                        _deg
+                    if newDeg'< 0 then
+                        360 + newDeg'
+                    else
+                        newDeg'
 
         doAction (MoveForward n) (deg, (x, y)) = doAction (forwardToAction deg n) (deg, (x, y))
         move [] ferry = ferry
         move (a:as) ferry = move as $ doAction a ferry
 
+part2 :: [Action] -> Int
+part2 actions = manhattanDistance $ snd $ move actions ((10,1), (0,0))
+    where
+        doAction (MoveNorth n) ((x, y), pos) = ((x, y + n), pos)
+        doAction (MoveSouth n) ((x, y), pos) = ((x, y - n), pos)
+        doAction (MoveEast n) ((x, y), pos) = ((x + n, y), pos)
+        doAction (MoveWest n) ((x, y), pos) = ((x - n, y), pos)
+        doAction (TurnLeft n) (waypoint, pos) = (rotatePoint waypoint n, pos)
+        doAction (TurnRight n) (waypoint, pos) = (rotatePoint waypoint (negate n), pos)
+        doAction (MoveForward n) ((wx, wy), (x, y)) = ((wx, wy), (x + wx * n, y + wy * n))
+        move [] ferry = ferry
+        move (a:as) ferry = move as $ doAction a ferry
+
+
+rotatePoint :: (Int, Int) -> Int -> (Int, Int)
+rotatePoint (x, y) deg = (round x', round y')
+    where 
+        deg' = fromIntegral $ 
+            if deg < 0 then
+                360 + deg
+            else
+                deg
+        rad = deg' * (pi / 180)
+        x'' = fromIntegral x
+        y'' = fromIntegral y
+        x' = x'' * cos rad - y'' * sin rad
+        y' = y'' * cos rad + x'' * sin rad
+
 main :: IO ()
 main = do
     input <- parser <$> readFile "input.txt"
     print $ part1 input
+    print $ part2 input
