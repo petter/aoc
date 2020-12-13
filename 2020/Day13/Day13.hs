@@ -21,11 +21,7 @@ import Text.Parsec.Char (newline, oneOf)
 import Data.List
 import Data.Maybe
 
-data Bus = Bus Int
-         | OutOfService
-         deriving (Show, Eq)
-
-parser :: String -> (Int, [Bus])
+parser :: String -> (Int, [Maybe Int])
 parser = either (error . show) id . parse fileParser "file parser"
     where
         fileParser = do
@@ -36,17 +32,15 @@ parser = either (error . show) id . parse fileParser "file parser"
 
         busParser = do
             busId <- try (string "x") <|> many1 digit
-            return $ case busId of "x" -> OutOfService
-                                   n  -> Bus (read n)
+            return $ case busId of "x" -> Nothing
+                                   n  -> Just (read n)
 
-part1 :: Int -> [Bus] -> Int
-part1 timestamp buses = (\(busId, busTimestamp) -> busId * (busTimestamp - timestamp)) $ minimumBy (\(_, a) (_, b) -> compare a b) $ firstLargerTimestamp <$> onlyValidBuses
+part1 :: Int -> [Maybe Int] -> Int
+part1 timestamp = res . minimumBy (\(_, a) (_, b) -> compare a b) . fmap firstLargerTimestamp . catMaybes 
     where
-        onlyValidBuses = filter (/= OutOfService) buses
-        busToList (Bus id) = [0,id..]
-        busToList (OutOfService) = []
-        firstLargerTimestamp (Bus busId) = (busId, fromJust $ find (>= timestamp) (busToList (Bus busId)))
-        firstLargerTimestamp OutOfService = (-1, -1)
+        res (busId, busTimestamp) = busId * (busTimestamp - timestamp)
+        busToList busId = [0,busId..]
+        firstLargerTimestamp busId = (busId, fromJust $ find (>= timestamp) (busToList busId))
 
 main :: IO ()
 main = do
