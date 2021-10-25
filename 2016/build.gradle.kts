@@ -13,10 +13,6 @@ repositories {
 }
 
 
-tasks {
-    day1
-}
-
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "1.8"
 }
