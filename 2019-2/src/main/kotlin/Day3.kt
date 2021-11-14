@@ -33,7 +33,7 @@ class Day3 : Day {
     }
 }
 
-class WireMap {
+private class WireMap {
     private var position = Pair(0, 0)
     val visitedPositions = mutableSetOf(position)
     val positionStepCount = mutableMapOf<Pair<Int, Int>, Int>()

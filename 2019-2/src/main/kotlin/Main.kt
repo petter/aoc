@@ -76,6 +76,7 @@ val solutions = mapOf(
     1 to Day1(),
     2 to Day2(),
     3 to Day3(),
+    4 to Day4(),
 )
 
 val expectedResults = mapOf(

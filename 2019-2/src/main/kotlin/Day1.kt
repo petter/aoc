@@ -12,9 +12,9 @@ class Day1 : Day {
     }
 }
 
-fun fuelRequiredForModule(mass: Int): Int = Math.floorDiv(mass, 3) - 2
+private fun fuelRequiredForModule(mass: Int): Int = Math.floorDiv(mass, 3) - 2
 
-fun fuelRequiredForAllFuel(mass: Int): Int {
+private fun fuelRequiredForAllFuel(mass: Int): Int {
     val fuelRequired = fuelRequiredForModule(mass)
 
     return if (fuelRequired > 0) {
