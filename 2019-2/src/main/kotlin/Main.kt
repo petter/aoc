@@ -1,7 +1,13 @@
 import java.io.File
 
-fun main() {
-    runLatest()
+fun main(args: Array<String>) {
+    if(args.size != 1) {
+        runLatest()
+    } else if(args.first() == "all") {
+        runAll()
+    } else {
+       run(args.first().toInt())
+    }
 }
 
 fun run(day: Int) {
@@ -29,16 +35,16 @@ fun run(day: Int) {
         val part2AsExpected = solutionPart2 == expectedResult.second
 
         if (part1AsExpected && part2AsExpected) {
-            println("OK! Both parts are working as expected")
+            println("✅ OK! Both parts are working as expected")
             return
         }
 
-        println("Not OK...")
+        println("❌ Not OK...")
 
         if (part1AsExpected) {
             println("Part 1 is OK")
         } else {
-            println("Part 1 is wrong")
+            println("\nPart 1 is wrong")
             println("Expected results: ${expectedResult.first}")
             println("Actual results: $solutionPart1")
         }
@@ -46,7 +52,7 @@ fun run(day: Int) {
         if (part2AsExpected) {
             println("Part 2 is OK")
         } else {
-            println("Part 2 is wrong")
+            println("\nPart 2 is wrong")
             println("Expected results: ${expectedResult.second}")
             println("Actual results: $solutionPart2")
         }
@@ -60,9 +66,16 @@ fun runLatest() {
     }
 }
 
+fun runAll() {
+    solutions.forEach {
+        run(it.key)
+    }
+}
+
 val solutions = mapOf(
     1 to Day1(),
     2 to Day2(),
+    3 to Day3(),
 )
 
 val expectedResults = mapOf(

@@ -6,3 +6,7 @@
 fun <T, U> Collection<T>.cartesianProduct(other: Collection<U>): List<Pair<T, U>> {
     return this.flatMap { lhsElem -> other.map { rhsElem -> lhsElem to rhsElem } }
 }
+
+fun manhattanDistance(pos1 : Pair<Int, Int>, pos2 : Pair<Int, Int>): Int {
+    return Math.abs(pos1.first - pos2.first) + Math.abs(pos1.second - pos2.second)
+}
