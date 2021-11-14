@@ -60,8 +60,9 @@ fun runLatest() {
     }
 }
 
-val solutions = mapOf<Int, Day>(
+val solutions = mapOf(
     1 to Day1(),
+    2 to Day2(),
 )
 
 val expectedResults = mapOf(
