@@ -1,42 +1,36 @@
 import Opcode.*
 import ParameterMode.*
 
-enum class Opcode(val int: Long) {
+enum class Opcode(val num: Long) {
     ADD(1L),
     MUL(2L),
+    INPUT(3L),
+    OUTPUT(4L),
     HALT(99L);
 
     companion object {
         fun from(num: Long): Opcode {
-            return when (num) {
-                1L -> ADD
-                2L -> MUL
-                99L -> HALT
-                else -> throw IllegalArgumentException("Unknown opcode: $num")
-            }
+            return values().find { it.num == num } ?: throw IllegalArgumentException("Unknown opcode: $num")
         }
     }
 }
 
-enum class ParameterMode(val int: Long) {
+enum class ParameterMode(val num: Long) {
     POSITION(0L),
     IMMEDIATE(1L);
 
     companion object {
         fun from(num: Long): ParameterMode {
-            return when (num) {
-                0L -> POSITION
-                1L -> IMMEDIATE
-                else -> throw IllegalArgumentException("Unknown parameter mode: $num")
-            }
+            return values().find { it.num == num } ?: throw IllegalArgumentException("Unknown parameter mode: $num")
         }
     }
 }
 
-class Intcode(input: List<String>) {
+class Intcode(input: List<String>, private val inputBuffer: MutableList<String> = mutableListOf()) {
     private var ip = 0L
-    private val memory: MutableList<Long>
+    val memory: MutableList<Long>
     private var running = false
+    val outputBuffer = mutableListOf<Long>()
 
     init {
         memory = parseIntcodeProgram(input)
@@ -58,6 +52,8 @@ class Intcode(input: List<String>) {
         when (opcode) {
             ADD -> doAdd(paramModes)
             MUL -> doMul(paramModes)
+            INPUT -> doInput(paramModes)
+            OUTPUT -> doOutput(paramModes)
             HALT -> halt()
         }
     }
@@ -76,6 +72,21 @@ class Intcode(input: List<String>) {
         ip += 4
     }
 
+    private fun doInput(paramModes : Triple<ParameterMode, ParameterMode, ParameterMode>) {
+        val input = inputBuffer.removeFirstOrNull() ?: let {
+            print("Input: ")
+            readLine()!!.trim()
+        }
+        write(ip + 1L, input.toLong(), paramModes.first)
+        ip += 2
+    }
+
+    private fun doOutput(paramModes : Triple<ParameterMode, ParameterMode, ParameterMode>) {
+        val output = read(ip + 1L, paramModes.first)
+        outputBuffer.add(output)
+        ip += 2
+    }
+
     private fun halt() {
         running = false
     }
@@ -88,9 +99,6 @@ class Intcode(input: List<String>) {
         return memory[readAddress.toInt()]
     }
 
-    fun write(value: Long, parameterMode: ParameterMode = POSITION) {
-        write(ip, value, parameterMode)
-    }
     fun write(address: Long, value: Long, parameterMode: ParameterMode = POSITION) {
         val writeAddress = if(parameterMode === IMMEDIATE) address else read(address, IMMEDIATE)
         memory[writeAddress.toInt()] = value
@@ -98,14 +106,17 @@ class Intcode(input: List<String>) {
 
     private fun parseInstruction(num: Long): Pair<Triple<ParameterMode, ParameterMode, ParameterMode>, Opcode> {
         val paramModes = Triple(
-            ParameterMode.from(getDigitAtPosition(num, 4)),
-            ParameterMode.from(getDigitAtPosition(num, 3)),
             ParameterMode.from(getDigitAtPosition(num, 2)),
+            ParameterMode.from(getDigitAtPosition(num, 3)),
+            ParameterMode.from(getDigitAtPosition(num, 4)),
         )
 
         val opcode = Opcode.from(num % 100)
 
         return paramModes to opcode
     }
+
+    private fun getDigitAtPosition(num : Long, position : Int) : Long =
+        num.toString().padStart(5, '0')[4 - position].toString().toLong()
 
 }
