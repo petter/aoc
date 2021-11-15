@@ -6,7 +6,8 @@ class Day5 : Day {
     }
 
     override fun part2(input: List<String>): String {
-        val intcode = Intcode(input, mutableListOf())
-        return "Not yet implemented"
+        val intcode = Intcode(input, mutableListOf("5"))
+        intcode.runProgram()
+        return intcode.outputBuffer.last().toString()
     }
 }

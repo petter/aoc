@@ -6,6 +6,10 @@ enum class Opcode(val num: Long) {
     MUL(2L),
     INPUT(3L),
     OUTPUT(4L),
+    JNZ(5L),
+    JZ(6L),
+    LT(7L),
+    EQ(8L),
     HALT(99L);
 
     companion object {
@@ -54,6 +58,10 @@ class Intcode(input: List<String>, private val inputBuffer: MutableList<String> 
             MUL -> doMul(paramModes)
             INPUT -> doInput(paramModes)
             OUTPUT -> doOutput(paramModes)
+            JNZ -> doJumpNotZero(paramModes)
+            JZ -> doJumpZero(paramModes)
+            LT -> doLessThan(paramModes)
+            EQ -> doEquals(paramModes)
             HALT -> halt()
         }
     }
@@ -86,6 +94,43 @@ class Intcode(input: List<String>, private val inputBuffer: MutableList<String> 
         outputBuffer.add(output)
         ip += 2
     }
+
+    private fun doJumpNotZero(paramModes : Triple<ParameterMode, ParameterMode, ParameterMode>) {
+        val param = read(ip + 1L, paramModes.first)
+        val jumpAddr = read(ip + 2L, paramModes.second)
+        if (param != 0L) {
+            ip = jumpAddr
+        } else {
+            ip += 3
+        }
+    }
+
+    private fun doJumpZero(paramModes: Triple<ParameterMode, ParameterMode, ParameterMode>) {
+        val param = read(ip + 1L, paramModes.first)
+        val jumpAddr = read(ip + 2L, paramModes.second)
+        if (param == 0L) {
+            ip = jumpAddr
+        } else {
+            ip += 3
+        }
+    }
+
+    private fun doLessThan(paramModes: Triple<ParameterMode, ParameterMode, ParameterMode>) {
+        val num1 = read(ip + 1L, paramModes.first)
+        val num2 = read(ip + 2L, paramModes.second)
+        val writeValue = if (num1 < num2) 1L else 0L
+        write(ip + 3L, writeValue, paramModes.third)
+        ip += 4
+    }
+
+    private fun doEquals(paramModes: Triple<ParameterMode, ParameterMode, ParameterMode>) {
+        val num1 = read(ip + 1L, paramModes.first)
+        val num2 = read(ip + 2L, paramModes.second)
+        val writeValue = if (num1 == num2) 1L else 0L
+        write(ip + 3L, writeValue, paramModes.third)
+        ip += 4
+    }
+
 
     private fun halt() {
         running = false
