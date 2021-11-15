@@ -10,3 +10,9 @@ fun <T, U> Collection<T>.cartesianProduct(other: Collection<U>): List<Pair<T, U>
 fun manhattanDistance(pos1 : Pair<Int, Int>, pos2 : Pair<Int, Int>): Int {
     return Math.abs(pos1.first - pos2.first) + Math.abs(pos1.second - pos2.second)
 }
+
+fun getDigitAtPosition(num : Long, position : Int) : Long {
+    val mask = 1 shl position
+    val maskedNum = num and mask.toLong()
+    return maskedNum shr position
+}
