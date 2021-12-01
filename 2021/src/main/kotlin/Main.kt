@@ -77,7 +77,7 @@ val solutions = mapOf(
 )
 
 val expectedResults = mapOf<Int, Pair<String, String>>(
-//    1 to Pair("0", "0"),
+    1 to Pair("1446", "1486"),
 //    2 to Pair("0", "0"),
 //    3 to Pair("0", "0"),
 //    4 to Pair("0", "0"),
