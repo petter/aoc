@@ -74,6 +74,7 @@ fun runAll() {
 
 val solutions = mapOf(
     1 to Day1(),
+    2 to Day2(),
 )
 
 val expectedResults = mapOf<Int, Pair<String, String>>(
