@@ -11,3 +11,17 @@ fun manhattanDistance(pos1 : Pair<Int, Int>, pos2 : Pair<Int, Int>): Int {
     return Math.abs(pos1.first - pos2.first) + Math.abs(pos1.second - pos2.second)
 }
 
+fun listSplit(list: List<String>, delimiter: String): List<List<String>> {
+    val result = mutableListOf<List<String>>()
+    var currentList = mutableListOf<String>()
+    result.add(currentList)
+    for (element in list) {
+        if (element == delimiter) {
+            currentList = mutableListOf()
+            result.add(currentList)
+        } else {
+            currentList.add(element)
+        }
+    }
+    return result.toList().filter { it.isNotEmpty() }
+}
