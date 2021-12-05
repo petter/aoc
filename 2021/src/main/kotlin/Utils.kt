@@ -25,3 +25,23 @@ fun listSplit(list: List<String>, delimiter: String): List<List<String>> {
     }
     return result.toList().filter { it.isNotEmpty() }
 }
+
+fun <T> List<T>.toPair(): Pair<T, T> {
+    if (this.size != 2) {
+        throw IllegalArgumentException("List is not of length 2!")
+    }
+    return Pair(this[0], this[1])
+}
+
+fun generatePointsBetween(from: Pair<Int, Int>, to: Pair<Int, Int>) : List<Pair<Int, Int>> {
+    val x = (if(from.first < to.first) from.first..to.first else from.first downTo to.first).toList()
+    val y = (if(from.second < to.second) from.second..to.second else from.second downTo to.second).toList()
+
+    if(x.size < y.size) {
+        return y.map { Pair(x[0], it) }
+    } else if (x.size > y.size) {
+        return x.map { Pair(it, y[0]) }
+    }
+
+    return x.zip(y)
+}
