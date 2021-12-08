@@ -45,3 +45,7 @@ fun generatePointsBetween(from: Pair<Int, Int>, to: Pair<Int, Int>) : List<Pair<
 
     return x.zip(y)
 }
+
+fun String.sorted(): String {
+    return this.toCharArray().sorted().joinToString("")
+}
