@@ -92,6 +92,7 @@ val solutions = mapOf(
     5 to Day5(),
     6 to Day6(),
     7 to Day7(),
+    8 to Day8(),
 )
 
 val expectedResults = mapOf(
@@ -102,7 +103,7 @@ val expectedResults = mapOf(
     5 to Pair("7085", "20271"),
     6 to Pair("349549", "1589590444365"),
     7 to Pair("342534", "94004208"),
-//    8 to Pair("0", "0"),
+    8 to Pair("479", "0")
 //    9 to Pair("0", "0"),
 //    10 to Pair("0", "0"),
 //    11 to Pair("0", "0"),
