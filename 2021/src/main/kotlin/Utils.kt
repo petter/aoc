@@ -49,3 +49,6 @@ fun generatePointsBetween(from: Pair<Int, Int>, to: Pair<Int, Int>) : List<Pair<
 fun String.sorted(): String {
     return this.toCharArray().sorted().joinToString("")
 }
+
+fun <T> List<List<T>>.isValidPoint(point: Pair<Int, Int>) : Boolean =
+    point.second in this.indices && point.first in this[point.second].indices
