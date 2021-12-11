@@ -8,7 +8,6 @@ class Day11 : Day {
             }.toMap()
     }
 
-    // 1308 - too low
     override fun part1(input: List<String>): String {
         val octopuses = parseInput(input).toMutableMap()
         var flashes = 0
@@ -53,6 +52,13 @@ class Day11 : Day {
     }
 
     override fun part2(input: List<String>): String {
-        return ""
+        val octopuses = parseInput(input).toMutableMap()
+        var step = 0
+        do {
+            step += 1
+            val flashes = simulateStep(octopuses)
+        }
+        while (flashes != octopuses.size)
+        return step.toString()
     }
 }
