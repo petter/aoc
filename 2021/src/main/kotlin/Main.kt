@@ -29,7 +29,7 @@ fun run(day: Int) {
 
     val part2TimeStart = System.currentTimeMillis()
     val solutionPart2 = daySolution.part2(input)
-    val part2Time = System.currentTimeMillis() - part1TimeStart
+    val part2Time = System.currentTimeMillis() - part2TimeStart
 
     if (expectedResult == null) {
         println("Could not find any expected results")
@@ -95,6 +95,7 @@ val solutions = mapOf(
     8 to Day8(),
     9 to Day9(),
     10 to Day10(),
+    11 to Day11(),
 )
 
 val expectedResults = mapOf(
