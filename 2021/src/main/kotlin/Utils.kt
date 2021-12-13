@@ -52,3 +52,7 @@ fun String.sorted(): String {
 
 fun <T> List<List<T>>.isValidPoint(point: Pair<Int, Int>) : Boolean =
     point.second in this.indices && point.first in this[point.second].indices
+
+fun <T> replicate(n:Int,x:T):List<T> {
+    return List(n) { x }
+}
