@@ -1,14 +1,18 @@
 class Day1 : Day {
 
-    override fun part1(input: List<String>): String {
-        val numbers = input.map {
-            it.toCharArray()
-              .filter { char -> char.isDigit() }
-        }
-        val calibrationValues = numbers
+    private fun findCalibrationValues(input: List<String>): List<Int> {
+        val numbers = input
+            .map {
+                it.toCharArray()
+                .filter { char -> char.isDigit() }
+            }
+        return numbers
             .filter { it.isNotEmpty() }
             .map { it.first().toString() + it.last().toString() }
             .map { it.toInt() }
+    }
+    override fun part1(input: List<String>): String {
+        val calibrationValues = findCalibrationValues(input)
         val result = calibrationValues.sum()
         return result.toString()
     }
@@ -32,14 +36,7 @@ class Day1 : Day {
                 acc.replace(key, value)
             }
         }
-        val numbers = spelledOutReplaced.map {
-            it.toCharArray()
-                .filter { char -> char.isDigit() }
-        }
-        val calibrationValues = numbers
-            .filter { it.isNotEmpty() }
-            .map { it.first().toString() + it.last().toString() }
-            .map { it.toInt() }
+        val calibrationValues = findCalibrationValues(spelledOutReplaced)
         val result = calibrationValues.sum()
         return result.toString()
     }

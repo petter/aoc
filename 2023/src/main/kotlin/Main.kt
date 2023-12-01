@@ -113,7 +113,7 @@ val solutions = mapOf(
 )
 
 val expectedResults = mapOf(
-    1 to Pair("55090", "0"),
+    1 to Pair("55090", "54845"),
 //    2 to Pair("0", "0"),
 //    3 to Pair("0", "0"),
 //    4 to Pair("0", "0"),
