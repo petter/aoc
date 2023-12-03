@@ -87,7 +87,7 @@ fun runAll() {
 val solutions = mapOf(
     1 to Day1(),
     2 to Day2(),
-//    3 to Day3(),
+    3 to Day3(),
 //    4 to Day4(),
 //    5 to Day5(),
 //    6 to Day6(),
@@ -115,7 +115,7 @@ val solutions = mapOf(
 val expectedResults = mapOf(
     1 to Pair("55090", "54845"),
     2 to Pair("2105", "72422"),
-//    3 to Pair("0", "0"),
+    3 to Pair("527369", "73074886"),
 //    4 to Pair("0", "0"),
 //    5 to Pair("0", "0"),
 //    6 to Pair("0", "0"),

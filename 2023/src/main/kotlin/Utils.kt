@@ -62,3 +62,5 @@ fun <T> replicate(n: Int, x: T): List<T> {
 fun <T> replicate(n: Int, f: (Int) -> T): List<T> {
     return List(n) { f(it) }
 }
+
+data class Coordinate(val x: Int, val y: Int)
