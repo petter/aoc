@@ -1,5 +1,3 @@
-import java.math.BigInteger
-
 class Day5 : Day {
 
     // Returns a pair of seeds to use, and a list of transformers
@@ -34,15 +32,18 @@ class Day5 : Day {
         return locations.min().toString()
     }
 
-    // 2520480 - too high
     override fun part2(input: List<String>): String {
         val (seedsRangePairs, transformers) = parseInput(input)
         val seedRanges = seedsRangePairs.chunked(2).map { (start, length) -> (start..(start + length)) }
-        val locations = seedRanges.mapIndexed { i, seedRange ->
-            println("Running seed range $i/${seedRanges.size} with ${seedRange.endInclusive - seedRange.start} seeds")
-            seedRange.minOf { seed -> transformers.fold(seed) { x, transformer -> transformer.transform(x) } }
+        val reversedTransformers = transformers.reversed()
+        var location = 0L
+        while(true) {
+            val seed = reversedTransformers.fold(location) { x, transformer -> transformer.reverseTransform(x) }
+            if(seedRanges.any { seed in it }) {
+                return location.toString()
+            }
+            location++
         }
-        return locations.min().toString()
     }
 
 }
@@ -61,9 +62,17 @@ private class Rule(destinationSourceRange: Triple<Long, Long, Long>) {
 
         return null
     }
+
+    fun reverseApply(destination: Long): Long? {
+        if(destination in destinationStart..<destinationStart + rangeLength) {
+            return sourceStart + destination - destinationStart
+        }
+
+        return null
+    }
 }
 
-private class Transformer(private val rules: List<Rule>) {
+private class Transformer(val rules: List<Rule>) {
     fun transform(source: Long): Long {
         for(rule in rules) {
             val result = rule.apply(source)
@@ -73,5 +82,16 @@ private class Transformer(private val rules: List<Rule>) {
         }
 
         return source
+    }
+
+    fun reverseTransform(destination: Long): Long {
+        for(rule in rules) {
+            val result = rule.reverseApply(destination)
+            if(result != null) {
+                return result
+            }
+        }
+
+        return destination
     }
 }

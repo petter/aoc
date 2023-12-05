@@ -117,7 +117,7 @@ val expectedResults = mapOf(
     2 to Pair("2105", "72422"),
     3 to Pair("527369", "73074886"),
     4 to Pair("21821", "5539496"),
-    5 to Pair("0", "0"),
+    5 to Pair("462648396", "2520479"),
 //    6 to Pair("0", "0"),
 //    7 to Pair("0", "0"),
 //    8 to Pair("0", "0"),
