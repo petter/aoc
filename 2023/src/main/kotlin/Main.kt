@@ -81,13 +81,15 @@ private fun <T> timeIt(f: () -> T) : Pair<T, String> {
 
     // Longer than 2sec
     if(initialTotalTime > 2e9) {
-        return res to formatTime(initialTotalTime)
+        return res to "${formatTime(initialTotalTime)} (1 sample)"
     }
 
-    val times = (0..10).map { measureNanoTime { f() } }
+    val samples = (2e9 / initialTotalTime).roundToLong()
+
+    val times = (0..samples).map { measureNanoTime { f() } }
     val averageTime = times.average().roundToLong()
     val deltaTime = averageTime - times.min()
-    return res to "${formatTime(averageTime)} +- ${formatTime(deltaTime)}"
+    return res to "${formatTime(averageTime)} +- ${formatTime(deltaTime)} ($samples samples)"
 }
 
 private fun formatTime(timeNs: Long) : String {
