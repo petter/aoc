@@ -1,4 +1,5 @@
 import kotlin.math.abs
+import kotlin.math.sqrt
 
 /**
  * E.g.
@@ -63,6 +64,13 @@ fun <T> replicate(n: Int, x: T): List<T> {
 
 fun <T> replicate(n: Int, f: (Int) -> T): List<T> {
     return List(n) { f(it) }
+}
+
+fun solveQuadraticEq(a: Double, b: Double, c: Double): Pair<Double, Double> {
+    val sqrt = sqrt(b * b - 4 * a * c)
+    val x1 = (-b + sqrt) / (2 * a)
+    val x2 = (-b - sqrt) / (2 * a)
+    return Pair(x1, x2)
 }
 
 data class Coordinate(val x: Int, val y: Int)

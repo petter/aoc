@@ -1,3 +1,6 @@
+import kotlin.math.ceil
+import kotlin.math.floor
+
 class Day6 : Day {
 
     private fun parseInputPart1(input: List<String>): List<Pair<Long, Long>> {
@@ -23,21 +26,27 @@ class Day6 : Day {
         return times to distances
     }
 
+
     private fun calculateDistance(timeHeldButton: Long, totalTime: Long) : Long {
         return timeHeldButton * (totalTime - timeHeldButton)
     }
 
-    private fun numberOfWaysToBeat(distanceToBeat: Long, totalTime: Long) : Long {
+    private fun numberOfWaysToBeatBruteForce(distanceToBeat: Long, totalTime: Long) : Long {
         return (0..totalTime)
             .asSequence()
             .filter { calculateDistance(it, totalTime) > distanceToBeat }
             .count().toLong()
     }
 
+    private fun numberOfWaysToBeatMath(distanceToBeat: Long, totalTime: Long) : Long {
+        val (x1, x2) = solveQuadraticEq(-1.0, totalTime.toDouble(), - distanceToBeat.toDouble())
+        return floor(x2).toLong() - floor(x1).toLong()
+    }
+
     override fun part1(input: List<String>): String {
         val races = parseInputPart1(input)
         val numWaysToBeat = races.map { (time, distanceToBeat) ->
-            numberOfWaysToBeat(distanceToBeat, time)
+            numberOfWaysToBeatMath(distanceToBeat, time)
         }
 
         return numWaysToBeat.reduce(Long::times).toString()
@@ -45,7 +54,7 @@ class Day6 : Day {
 
     override fun part2(input: List<String>): String {
         val (time, distanceToBeat) = parseInputPart2(input)
-        return numberOfWaysToBeat(distanceToBeat, time).toString()
+        return numberOfWaysToBeatMath(distanceToBeat, time).toString()
     }
 
 }
