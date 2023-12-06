@@ -29,9 +29,9 @@ class Day6 : Day {
 
     private fun numberOfWaysToBeat(distanceToBeat: Long, totalTime: Long) : Long {
         return (0..totalTime)
-            .map { calculateDistance(it, totalTime) }
-            .filter { it > distanceToBeat }
-            .size.toLong()
+            .asSequence()
+            .filter { calculateDistance(it, totalTime) > distanceToBeat }
+            .count().toLong()
     }
 
     override fun part1(input: List<String>): String {
