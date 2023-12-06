@@ -1,4 +1,7 @@
 import java.io.File
+import java.text.DecimalFormat
+import kotlin.math.roundToLong
+import kotlin.system.measureNanoTime
 
 fun main(args: Array<String>) {
     if(args.size != 1) {
@@ -23,13 +26,8 @@ fun run(day: Int) {
     val input = File("src/main/resources/input/day$day.txt").readLines()
     val expectedResult = expectedResults[day]
 
-    val part1TimeStart = System.currentTimeMillis()
-    val solutionPart1 = daySolution.part1(input)
-    val part1Time = System.currentTimeMillis() - part1TimeStart
-
-    val part2TimeStart = System.currentTimeMillis()
-    val solutionPart2 = daySolution.part2(input)
-    val part2Time = System.currentTimeMillis() - part2TimeStart
+    val (solutionPart1, part1Time) = timeIt { daySolution.part1(input) }
+    val (solutionPart2, part2Time) = timeIt { daySolution.part2(input) }
 
     if (expectedResult == null) {
         println("Could not find any expected results")
@@ -42,8 +40,8 @@ fun run(day: Int) {
 
         if (part1AsExpected && part2AsExpected) {
             println("✅ OK! Both parts are working as expected")
-            println("Part 1 took ${part1Time}ms")
-            println("Part 2 took ${part2Time}ms")
+            println("Part 1 took $part1Time")
+            println("Part 2 took $part2Time")
             return
         }
 
@@ -51,26 +49,60 @@ fun run(day: Int) {
 
         if (part1AsExpected) {
             println("Part 1 is OK")
-            println("Part 1 took ${part1Time}ms")
+            println("Part 1 took $part1Time")
         } else {
             println("\nPart 1 is wrong")
             println("Expected results: ${expectedResult.first}")
             println("Actual results: $solutionPart1")
-            println("Part 1 took ${part1Time}ms")
+            println("Part 1 took $part1Time")
         }
 
         if (part2AsExpected) {
             println("Part 2 is OK")
-            println("Part 2 took ${part2Time}ms")
+            println("Part 2 took $part2Time")
         } else {
             println("\nPart 2 is wrong")
             println("Expected results: ${expectedResult.second}")
             println("Actual results: $solutionPart2")
-            println("Part 2 took ${part2Time}ms")
+            println("Part 2 took $part2Time")
         }
     }
 
 }
+
+/**
+ * Returns the time it took to run the function as a formatted string.
+ * If the time is less than 1 second, it will do a more scientific timing, where we run it several times,
+ * to account for JIT compilation, and other performance impacting factors.
+ */
+private fun <T> timeIt(f: () -> T) : Pair<T, String> {
+    var res: T
+    val initialTotalTime = measureNanoTime { res = f() }
+
+    // Longer than 2sec
+    if(initialTotalTime > 2e9) {
+        return res to formatTime(initialTotalTime)
+    }
+
+    val times = (0..10).map { measureNanoTime { f() } }
+    val averageTime = times.average().roundToLong()
+    val deltaTime = averageTime - times.min()
+    return res to "${formatTime(averageTime)} +- ${formatTime(deltaTime)}"
+}
+
+private fun formatTime(timeNs: Long) : String {
+    val df = DecimalFormat("#.##")
+    return if(timeNs >= 1e9) {
+        "${df.format(timeNs.toDouble() / 1e9)}s"
+    } else if(timeNs >= 1e5) {
+        "${df.format(timeNs.toDouble() / 1e6)}ms"
+    } else if(timeNs >= 1e2) {
+        "${df.format(timeNs.toDouble() / 1e3)}μs"
+    } else {
+        "${timeNs}ns"
+    }
+}
+
 
 fun runLatest() {
     solutions.maxByOrNull { it.key }?.let {
