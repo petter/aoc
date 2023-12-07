@@ -47,13 +47,13 @@ class Day7 : Day {
 
 private data class Hand(val cards: List<Int>, val bid: Int) : Comparable<Hand> {
     private val groupCounts = cards.groupBy { it }.map { it.value.size }.sortedDescending()
-    private val simpleHandType = when(groupCounts) {
+    private val simpleHandType = when(groupCounts.take(2)) {
         listOf(5) -> HandType.FiveOfAKind
         listOf(4, 1) -> HandType.FourOfAKind
         listOf(3, 2) -> HandType.FullHouse
-        listOf(3, 1, 1) -> HandType.ThreeOfAKind
-        listOf(2, 2, 1) -> HandType.TwoPairs
-        listOf(2, 1, 1, 1) -> HandType.OnePair
+        listOf(3, 1) -> HandType.ThreeOfAKind
+        listOf(2, 2) -> HandType.TwoPairs
+        listOf(2, 1) -> HandType.OnePair
         else -> HandType.HighCard
     }
 
