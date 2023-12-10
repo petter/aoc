@@ -1,4 +1,5 @@
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 /**
@@ -81,4 +82,50 @@ fun solveQuadraticEq(a: Double, b: Double, c: Double): Pair<Double, Double> {
     return Pair(x1, x2)
 }
 
-data class Coordinate(val x: Int, val y: Int)
+data class Coordinate(val x: Int, val y: Int) {
+
+    companion object {
+        val UP = Coordinate(0, 1)
+        val DOWN = Coordinate(0, -1)
+        val LEFT = Coordinate(-1, 0)
+        val RIGHT = Coordinate(1, 0)
+    }
+
+    operator fun plus(other: Coordinate): Coordinate {
+        return Coordinate(this.x + other.x, this.y + other.y)
+    }
+
+    operator fun minus(other: Coordinate): Coordinate {
+        return Coordinate(this.x - other.x, this.y - other.y)
+    }
+
+    fun manhattanDistance(other: Coordinate): Int {
+        return abs(this.x - other.x) + abs(this.y - other.y)
+    }
+
+    fun euclideanDistance(other: Coordinate): Double {
+        return sqrt((this.x - other.x).toDouble().pow(2) + (this.y - other.y).toDouble().pow(2))
+    }
+
+    fun neighbours(): List<Coordinate> {
+        return listOf(
+            this + Coordinate(1, 0),
+            this + Coordinate(-1, 0),
+            this + Coordinate(0, 1),
+            this + Coordinate(0, -1),
+        )
+    }
+
+    fun neighboursWithDiagonals(): List<Coordinate> {
+        return listOf(
+            this + Coordinate(1, 0),
+            this + Coordinate(-1, 0),
+            this + Coordinate(0, 1),
+            this + Coordinate(0, -1),
+            this + Coordinate(1, 1),
+            this + Coordinate(-1, 1),
+            this + Coordinate(1, -1),
+            this + Coordinate(-1, -1),
+        )
+    }
+}
