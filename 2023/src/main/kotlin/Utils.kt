@@ -15,6 +15,10 @@ fun manhattanDistance(pos1 : Pair<Int, Int>, pos2 : Pair<Int, Int>): Int {
     return abs(pos1.first - pos2.first) + abs(pos1.second - pos2.second)
 }
 
+fun manhattanDistance(pos1 : Pair<Long, Long>, pos2 : Pair<Long, Long>): Long {
+    return abs(pos1.first - pos2.first) + abs(pos1.second - pos2.second)
+}
+
 fun <T> List<T>.split(delimiter: T): List<List<T>> {
     val result = mutableListOf<List<T>>()
     var currentList = mutableListOf<T>()
@@ -97,6 +101,10 @@ data class Coordinate(val x: Int, val y: Int) {
 
     operator fun minus(other: Coordinate): Coordinate {
         return Coordinate(this.x - other.x, this.y - other.y)
+    }
+
+    operator fun times(expandBy: Int): Coordinate {
+        return Coordinate(this.x * expandBy, this.y * expandBy)
     }
 
     fun manhattanDistance(other: Coordinate): Int {
