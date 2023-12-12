@@ -2,6 +2,7 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+
 /**
  * E.g.
  * cartesianProduct(listOf(1, 2, 3), listOf(true, false)) returns
@@ -135,5 +136,24 @@ data class Coordinate(val x: Int, val y: Int) {
             this + Coordinate(1, -1),
             this + Coordinate(-1, -1),
         )
+    }
+}
+
+fun <T> List<T>.permutations(): Sequence<List<T>> {
+    if (this.isEmpty()) return sequenceOf(emptyList())
+
+    return sequence {
+        val head = first()
+        val tail = drop(1)
+
+        if (tail.isEmpty()) {
+            yield(listOf(head))
+        } else {
+            for (perm in tail.permutations()) {
+                for (i in 0..perm.size) {
+                    yield(perm.take(i) + head + perm.drop(i))
+                }
+            }
+        }
     }
 }
