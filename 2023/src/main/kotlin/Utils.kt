@@ -157,3 +157,12 @@ fun <T> List<T>.permutations(): Sequence<List<T>> {
         }
     }
 }
+
+class Memo<T, R : Any> {
+    private val values = mutableMapOf<T, R>()
+
+    fun memoize(cacheKey: T, fn: () -> R): R {
+//        return fn()
+        return values.getOrPut(cacheKey) { fn() }
+    }
+}
