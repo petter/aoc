@@ -149,6 +149,6 @@ class Day14 : Day {
 
 }
 
-enum class Rock {
+private enum class Rock {
     Round, Square
 }
