@@ -166,3 +166,7 @@ class Memo<T, R : Any> {
         return values.getOrPut(cacheKey) { fn() }
     }
 }
+
+enum class CardinalDirection {
+    North, South, East, West
+}
