@@ -60,21 +60,19 @@ class Day16 : Day {
     }
 
     private fun simulate(initialBeams: List<Beam>, tileMap: Map<Coordinate, Tile>) {
+        val moves = mutableSetOf<Pair<CardinalDirection, Coordinate>>()
         var beams = initialBeams
-        var i = 0L
-        var lastEnergizedCount = 0
         while(beams.isNotEmpty()) {
-            beams = step(beams, tileMap)
-            if(i % 100 == 0L) {
-                val energizedCount = tileMap.values.count { it.energized }
-                if(energizedCount == lastEnergizedCount) {
-                    break
+            beams = step(beams, tileMap).filter {
+                val pair = it.direction to it.coordinate
+                if (pair in moves) {
+                    false
+                } else {
+                    moves.add(pair)
+                    true
                 }
-                lastEnergizedCount = energizedCount
             }
-            i++
         }
-
     }
 
     private fun resetEnergizedStatus(tileMap: Map<Coordinate, Tile>) {
