@@ -89,7 +89,7 @@ private fun <T> timeIt(f: () -> T) : Pair<T, String> {
     val times = (0..samples).map { measureNanoTime { f() } }
     val averageTime = times.average().roundToLong()
     val deltaTime = averageTime - times.min()
-    return res to "${formatTime(averageTime)} +- ${formatTime(deltaTime)} ($samples samples)"
+    return res to "${formatTime(averageTime)} +- ${formatTime(deltaTime)} (${times.size} samples)"
 }
 
 private fun formatTime(timeNs: Long) : String {
