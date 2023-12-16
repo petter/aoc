@@ -170,3 +170,12 @@ class Memo<T, R : Any> {
 enum class CardinalDirection {
     North, South, East, West
 }
+
+fun CardinalDirection.toCoordinate() : Coordinate {
+    return when(this) {
+        CardinalDirection.North -> Coordinate(0, -1)
+        CardinalDirection.South -> Coordinate(0, 1)
+        CardinalDirection.East -> Coordinate(1, 0)
+        CardinalDirection.West -> Coordinate(-1, 0)
+    }
+}
