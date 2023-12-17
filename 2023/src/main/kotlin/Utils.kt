@@ -89,6 +89,10 @@ fun solveQuadraticEq(a: Double, b: Double, c: Double): Pair<Double, Double> {
 
 data class Coordinate(val x: Int, val y: Int) {
 
+    override fun toString(): String {
+        return "($x, $y)"
+    }
+
     companion object {
         val UP = Coordinate(0, 1)
         val DOWN = Coordinate(0, -1)
@@ -177,5 +181,15 @@ fun CardinalDirection.toCoordinate() : Coordinate {
         CardinalDirection.South -> Coordinate(0, 1)
         CardinalDirection.East -> Coordinate(1, 0)
         CardinalDirection.West -> Coordinate(-1, 0)
+    }
+}
+
+fun Coordinate.toCardinalDirection() : CardinalDirection {
+    return when {
+        this == Coordinate(0, -1) -> CardinalDirection.North
+        this == Coordinate(0, 1) -> CardinalDirection.South
+        this == Coordinate(1, 0) -> CardinalDirection.East
+        this == Coordinate(-1, 0) -> CardinalDirection.West
+        else -> throw IllegalArgumentException("Coordinate $this is not a cardinal direction")
     }
 }
