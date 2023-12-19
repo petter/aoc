@@ -1,5 +1,7 @@
+
 import kotlin.math.abs
 import kotlin.math.pow
+import kotlin.math.roundToLong
 import kotlin.math.sqrt
 
 
@@ -87,7 +89,8 @@ fun solveQuadraticEq(a: Double, b: Double, c: Double): Pair<Double, Double> {
     return Pair(x1, x2)
 }
 
-data class Coordinate(val x: Int, val y: Int) {
+data class Coordinate(val x: Long, val y: Long) {
+    constructor(x: Int, y: Int) : this(x.toLong(), y.toLong())
 
     override fun toString(): String {
         return "($x, $y)"
@@ -112,7 +115,7 @@ data class Coordinate(val x: Int, val y: Int) {
         return Coordinate(this.x * expandBy, this.y * expandBy)
     }
 
-    fun manhattanDistance(other: Coordinate): Int {
+    fun manhattanDistance(other: Coordinate): Long {
         return abs(this.x - other.x) + abs(this.y - other.y)
     }
 
@@ -192,4 +195,40 @@ fun Coordinate.toCardinalDirection() : CardinalDirection {
         this == Coordinate(-1, 0) -> CardinalDirection.West
         else -> throw IllegalArgumentException("Coordinate $this is not a cardinal direction")
     }
+}
+
+/**
+ * The ordering of points in coords is important. By drawing lines between neighbouring edges
+ * we should end up with the outline of the shape.
+ */
+fun circumference(coords: List<Coordinate>): Long {
+    if(coords.size < 3) {
+        throw Error("Shape needs at least three points")
+    }
+
+    return (coords + coords.first()).zipWithNext().fold(0.0) { acc, (coord1, coord2) ->
+        val distanceVector = coord2 - coord1
+        val length = sqrt(distanceVector.x.toDouble().pow(2.0) + distanceVector.y.toDouble().pow(2.0))
+        acc + length
+    }.roundToLong()
+}
+
+/**
+ * The ordering of points in coords is important. By drawing lines between neighbouring edges
+ * we should end up with the outline of the shape.
+ */
+fun shoelaceArea(coords: List<Coordinate>): Double {
+    if(coords.size < 3) {
+        throw Error("Shape needs at least three points")
+    }
+    val doubleArea = (coords + coords.first()).zipWithNext().fold(0.0) { acc, (coord1, coord2) ->
+        val determinant = coord1.x * coord2.y - coord2.x * coord1.y
+        acc + determinant
+    }
+
+    return doubleArea / 2.0
+}
+
+fun pickTheoremForInteriorPoints(A: Long, b: Long): Long {
+    return A - b / 2 + 1
 }

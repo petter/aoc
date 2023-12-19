@@ -80,7 +80,7 @@ private fun <T> timeIt(f: () -> T) : Pair<T, String> {
     val initialTotalTime = measureNanoTime { res = f() }
 
     // Longer than 2sec
-    if(initialTotalTime > 2e9) {
+    if(initialTotalTime > 2e9 || true) {
         return res to "${formatTime(initialTotalTime)} (1 sample)"
     }
 
@@ -136,7 +136,7 @@ val solutions = mapOf(
     15 to Day15(),
     16 to Day16(),
     17 to Day17(),
-//    18 to Day18(),
+    18 to Day18(),
 //    19 to Day19(),
 //    20 to Day20(),
 //    21 to Day21(),
@@ -164,7 +164,7 @@ val expectedResults = mapOf(
     15 to Pair("511257", "239484"),
     16 to Pair("7046", "7313"),
     17 to Pair("686", "801"),
-//    18 to Pair("0", "0"),
+    18 to Pair("40131", "0"),
 //    19 to Pair("0", "0"),
 //    20 to Pair("0", "0"),
 //    21 to Pair("0", "0"),

@@ -42,17 +42,17 @@ private class EngineSchematic(input: List<String>) {
                     }
 
                     val numberValue = line.substring(numberStart, numberEnd + 1).toInt()
-                    val xPosRange = numberStart..numberEnd
-                    val number = Number(numberValue, y, xPosRange)
+                    val xPosRange = numberStart.toLong()..numberEnd.toLong()
+                    val number = Number(numberValue, y.toLong(), xPosRange)
 
                     for(numberX in xPosRange) {
-                        mutableEngineMap[Coordinate(numberX, y)] = number
+                        mutableEngineMap[Coordinate(numberX, y.toLong())] = number
                     }
 
                     continue
                 }
 
-                mutableEngineMap[Coordinate(x, y)] = Symbol(char, y, x)
+                mutableEngineMap[Coordinate(x, y)] = Symbol(char, y.toLong(), x.toLong())
                 x++
             }
         }
@@ -61,7 +61,7 @@ private class EngineSchematic(input: List<String>) {
     }
 
     fun getPartNeighbours(part: EnginePart): List<EnginePart> {
-        fun getNeighbourCoords(x: Int, y: Int): List<Coordinate> {
+        fun getNeighbourCoords(x: Long, y: Long): List<Coordinate> {
             return listOf(
                 Coordinate(x, y - 1),
                 Coordinate(x - 1, y - 1),
@@ -92,10 +92,10 @@ private class EngineSchematic(input: List<String>) {
 
 private sealed class EnginePart
 
-private data class Symbol(val value: Char, val y: Int, val x: Int) : EnginePart() {
+private data class Symbol(val value: Char, val y: Long, val x: Long) : EnginePart() {
     fun getRelatedNumbers(engineSchematic: EngineSchematic): List<Number> {
         return engineSchematic.getPartNeighbours(this).filterIsInstance<Number>()
     }
 }
 
-private data class Number(val value: Int, val y: Int, val x: IntRange) : EnginePart()
+private data class Number(val value: Int, val y: Long, val x: LongRange) : EnginePart()
