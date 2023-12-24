@@ -52,8 +52,8 @@ fun run(day: Int) {
             println("Part 1 took $part1Time")
         } else {
             println("\nPart 1 is wrong")
-            println("Expected results: ${expectedResult.first}")
-            println("Actual results: $solutionPart1")
+            println("Expected results: \t${expectedResult.first}")
+            println("Actual results: \t$solutionPart1")
             println("Part 1 took $part1Time")
         }
 
@@ -62,8 +62,8 @@ fun run(day: Int) {
             println("Part 2 took $part2Time")
         } else {
             println("\nPart 2 is wrong")
-            println("Expected results: ${expectedResult.second}")
-            println("Actual results: $solutionPart2")
+            println("Expected results: \t${expectedResult.second}")
+            println("Actual results: \t$solutionPart2")
             println("Part 2 took $part2Time")
         }
     }
@@ -80,7 +80,7 @@ private fun <T> timeIt(f: () -> T) : Pair<T, String> {
     val initialTotalTime = measureNanoTime { res = f() }
 
     // Longer than 2sec
-    if(initialTotalTime > 2e9 || true) {
+    if(initialTotalTime > 2e9) {
         return res to "${formatTime(initialTotalTime)} (1 sample)"
     }
 
@@ -137,7 +137,7 @@ val solutions = mapOf(
     16 to Day16(),
     17 to Day17(),
     18 to Day18(),
-//    19 to Day19(),
+    19 to Day19(),
 //    20 to Day20(),
 //    21 to Day21(),
 //    22 to Day22(),
@@ -165,7 +165,7 @@ val expectedResults = mapOf(
     16 to Pair("7046", "7313"),
     17 to Pair("686", "801"),
     18 to Pair("40131", "0"),
-//    19 to Pair("0", "0"),
+    19 to Pair("406934", "131192538505367"),
 //    20 to Pair("0", "0"),
 //    21 to Pair("0", "0"),
 //    22 to Pair("0", "0"),
