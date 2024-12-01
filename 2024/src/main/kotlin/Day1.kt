@@ -1,3 +1,4 @@
+import java.math.BigInteger
 import kotlin.math.abs
 
 class Day1 : Day {
@@ -27,7 +28,19 @@ class Day1 : Day {
     }
 
     override fun part2(input: List<String>): String {
-        return ""
+        val (list1, list2) = parseInput(input)
+        return similarity(list1, list2, BigInteger.ZERO).toString()
+    }
+
+    fun similarity(list1: List<Int>, list2: List<Int>, sum: BigInteger): BigInteger {
+        if(list1.isEmpty()) return sum
+
+        val newList = list1.toMutableList()
+        val smallest = newList.removeFirst()
+
+        val occurences = list2.count { it == smallest }
+
+        return similarity(newList, list2, sum + occurences.toBigInteger() * smallest.toBigInteger())
     }
 
 }
