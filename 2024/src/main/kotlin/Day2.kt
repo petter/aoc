@@ -24,9 +24,18 @@ class Day2 : Day {
 
     private fun isSmallAdjacents(report: List<Int>) = report.zipWithNext().all { (a, b) -> abs(a - b) in 1..3 }
 
-
     override fun part2(input: List<String>): String {
-        return ""
+        val reports = parseInput(input)
+        return reports.count { trySafe(it) }.toString()
+    }
+
+    private fun trySafe(report: List<Int>): Boolean {
+        if(isSafe(report)) {
+            return true
+        }
+
+        val reportsWithOneLess = report.indices.map { i -> report.toMutableList().apply { removeAt(i) } }
+        return reportsWithOneLess.any { isSafe(it) }
     }
 
 }
