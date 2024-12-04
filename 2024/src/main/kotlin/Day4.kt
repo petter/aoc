@@ -42,7 +42,21 @@ class Day4 : Day {
     }
 
     override fun part2(input: List<String>): String {
-        return ""
+        val map = parseInput(input)
+        val searchWord = "MAS"
+        val startPositions = map.filter { it.value == searchWord[1] }.keys
+        val wordSearchPatterns = listOf(
+            listOf(Coordinate.DOWN + Coordinate.LEFT, Coordinate(0, 0), Coordinate.UP + Coordinate.RIGHT),
+            listOf(Coordinate.DOWN + Coordinate.RIGHT, Coordinate(0, 0), Coordinate.UP + Coordinate.LEFT),
+        )
+
+        val foundWords = startPositions.count { start ->
+            wordSearchPatterns.map { wordSearch ->
+                wordSearch.map { map[it + start] }.joinToString("")
+            }.all { it == searchWord || it == searchWord.reversed() }
+        }
+
+        return foundWords.toString()
     }
 
 }
