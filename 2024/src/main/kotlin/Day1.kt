@@ -13,7 +13,7 @@ class Day1 : Day {
         return totalDistance(list1, list2, 0).toString()
     }
 
-    fun totalDistance(list1: List<Int>, list2: List<Int>, sum: Int): Int {
+    private tailrec fun totalDistance(list1: List<Int>, list2: List<Int>, sum: Int): Int {
         if(list1.isEmpty()) return sum
 
         val smallest1 = list1.minOrNull()!!
@@ -32,7 +32,7 @@ class Day1 : Day {
         return similarity(list1, list2, BigInteger.ZERO).toString()
     }
 
-    fun similarity(list1: List<Int>, list2: List<Int>, sum: BigInteger): BigInteger {
+    private tailrec fun similarity(list1: List<Int>, list2: List<Int>, sum: BigInteger): BigInteger {
         if(list1.isEmpty()) return sum
 
         val newList = list1.toMutableList()

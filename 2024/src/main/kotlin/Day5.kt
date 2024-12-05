@@ -27,13 +27,13 @@ class Day5 : Day {
         return middlePages.sumOf { it.pageNum }.toString()
     }
 
-    private fun sortOrder(order: List<Page>): List<Page> {
-        if(order.isEmpty()) return emptyList()
+    private tailrec fun sortOrder(order: List<Page>, sorted: List<Page> = emptyList()): List<Page> {
+        if(order.isEmpty()) return sorted
 
         val first = order.find { page -> order.all { other -> page.isBefore(other) } }!!
         val rest = order.filter { it != first }
 
-        return listOf(first) + sortOrder(rest)
+        return sortOrder(rest, sorted + first)
     }
 
 
