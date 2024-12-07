@@ -178,6 +178,15 @@ enum class CardinalDirection {
     North, South, East, West
 }
 
+fun CardinalDirection.turnRight(): CardinalDirection {
+    return when(this) {
+        CardinalDirection.North -> CardinalDirection.East
+        CardinalDirection.East -> CardinalDirection.South
+        CardinalDirection.South -> CardinalDirection.West
+        CardinalDirection.West -> CardinalDirection.North
+    }
+}
+
 fun CardinalDirection.toCoordinate() : Coordinate {
     return when(this) {
         CardinalDirection.North -> Coordinate(0, -1)
