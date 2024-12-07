@@ -1,7 +1,7 @@
 import java.math.BigInteger
 import kotlin.math.abs
 
-class Day1 : Day {
+class Day01 : Day {
 
     fun parseInput(input: List<String>): Pair<List<Int>, List<Int>> =
         input.map { it.split("   ")

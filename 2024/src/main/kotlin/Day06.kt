@@ -1,4 +1,4 @@
-class Day6 : Day {
+class Day06 : Day {
     private fun parseInput(input: List<String>): Pair<LabMap, Guard> {
         var guardPos = Coordinate(0, 0)
         val obstaclePositions = input.flatMapIndexed { y, line ->

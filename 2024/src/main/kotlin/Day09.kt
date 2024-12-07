@@ -1,4 +1,4 @@
-class Day7 : Day {
+class Day09 : Day {
 
     override fun part1(input: List<String>): String {
         return ""

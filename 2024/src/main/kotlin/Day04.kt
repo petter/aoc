@@ -1,4 +1,4 @@
-class Day4 : Day {
+class Day04 : Day {
     private fun parseInput(input: List<String>): Map<Coordinate, Char> {
         return input.mapIndexed { y, row ->
             row.mapIndexed { x, c ->

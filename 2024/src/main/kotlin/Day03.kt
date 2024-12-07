@@ -1,4 +1,4 @@
-class Day3 : Day {
+class Day03 : Day {
     private fun parseInput(input: List<String>, isPart2: Boolean): List<Pair<Int, Int>> {
         val s = input.joinToString { it }
         val matcher = Regex("(mul\\((\\d+),(\\d+)\\)|do\\(\\)|don't\\(\\))")

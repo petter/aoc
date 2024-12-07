@@ -1,4 +1,4 @@
-class Day5 : Day {
+class Day05 : Day {
 
     private fun parseInput(input: List<String>): Pair<List<Page>, List<List<Page>>> {
         val (rules, orders) = input.split("")

@@ -1,6 +1,6 @@
 import kotlin.math.abs
 
-class Day2 : Day {
+class Day02 : Day {
 
     private fun parseInput(input: List<String>): List<List<Int>> {
         return input.map { it.split(" ").map { num -> num.toInt() } }
