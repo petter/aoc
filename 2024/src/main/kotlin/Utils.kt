@@ -89,7 +89,7 @@ fun solveQuadraticEq(a: Double, b: Double, c: Double): Pair<Double, Double> {
     return Pair(x1, x2)
 }
 
-data class Coordinate(val x: Long, val y: Long) {
+data class Coordinate(val x: Long, val y: Long): Comparable<Coordinate> {
     constructor(x: Int, y: Int) : this(x.toLong(), y.toLong())
 
     override fun toString(): String {
@@ -113,6 +113,16 @@ data class Coordinate(val x: Long, val y: Long) {
 
     operator fun times(expandBy: Int): Coordinate {
         return Coordinate(this.x * expandBy, this.y * expandBy)
+    }
+
+    override fun compareTo(other: Coordinate): Int {
+        return when {
+            this.y < other.y -> -1
+            this.y > other.y -> 1
+            this.x < other.x -> -1
+            this.x > other.x -> 1
+            else -> 0
+        }
     }
 
     fun manhattanDistance(other: Coordinate): Long {

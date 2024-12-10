@@ -37,7 +37,7 @@ class Day07 : Day {
     }
 }
 
-sealed class Operator {
+private sealed class Operator {
     abstract fun apply(a: Long, b: Long): Long
 
     data object Add : Operator() {
